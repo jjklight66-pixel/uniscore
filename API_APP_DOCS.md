@@ -41,6 +41,7 @@ Khi lỗi (`401`, `404`, `422`, `429`):
 | Method | Endpoint | Mô tả |
 |---|---|---|
 | `GET` | `/api/v1/health` | Kiểm tra trạng thái API, thời gian server, tổng trận trong DB |
+| `GET` | `/api/v1/settings` | Lấy thông tin cấu hình trang web (tên trang, slogan, logo, SEO, thông báo, footer, môn mặc định) |
 | `GET` | `/api/v1/sports` | Danh sách 10 môn thể thao + số trận đang live |
 | `GET` | `/api/v1/matches` | Danh sách trận đấu (hỗ trợ `sport`, `date`, `date_from`, `date_to`, `status=all\|live\|finished\|upcoming`, `league`, `league_id`, `q`, `group_by_league=1`, `page`, `per_page`) |
 | `GET` | `/api/v1/matches/{sport}/{eventId}` | Chi tiết trận đấu (diễn biến, thống kê, đội hình, BXH, H2H — **DB-First**) |

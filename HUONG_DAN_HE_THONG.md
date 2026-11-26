@@ -1,7 +1,7 @@
 # HƯỚNG DẪN TOÀN DIỆN HỆ THỐNG THỂ THAO TRỰC TIẾP UNISCORE (10 MÔN THỂ THAO)
 
 **Dự án:** `sport` (Nền tảng Web Thể thao PHP Laravel + REST API v1 cho Mobile App + Pipeline Thu thập & Mission Control Python FastAPI)  
-**Phiên bản:** `2.1 Production (Ready for Mobile App)`  
+**Phiên bản:** `2.2 Production (Floodlight UI + Mobile App API v1 + Dynamic Site Settings)`  
 **Phạm vi:** 10 môn thể thao (*Bóng đá, Bóng rổ, Quần vợt, Bóng bầu dục Mỹ, Bóng chày, Cầu lông, Bóng chuyền, Cricket, Khúc côn cầu trên băng, Bóng bàn*)
 
 ---
@@ -20,10 +20,11 @@ Hệ thống đã tích hợp sẵn bộ **REST API v1 (Stateless, CORS, Rate Li
 | **API Đăng ký / Đăng nhập Token** | [AuthApiController.php](./web/app/Http/Controllers/Api/V1/AuthApiController.php) | `register`, `login`, `me`, `logout` (Bearer Token SHA-256) |
 | **API Yêu thích & Push Notification** | [UserAppController.php](./web/app/Http/Controllers/Api/V1/UserAppController.php) | `favorites` (thêm/xóa/toggle) & `devices` (FCM / APNs token) |
 | **Hướng dẫn hệ thống chi tiết** | [HUONG_DAN_HE_THONG.md](./HUONG_DAN_HE_THONG.md) | Giải thích kiến trúc, giao diện 10 môn, Admin Panel & Mission Control |
+| **Hệ thống thiết kế giao diện (Floodlight)** | [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) | Bảng màu sân vận động đêm, mặt sân sáng, typography & component dùng chung |
 | **Cây API 10 môn thể thao gốc** | [DOCUMENTATION_API_TREES_10_SPORTS.md](./nguon2-uniscore/DOCUMENTATION_API_TREES_10_SPORTS.md) | Đặc tả chi tiết cấu trúc dữ liệu từng môn của nguồn UniScore |
 
 ### Bảng tóm tắt Endpoint `/api/v1/*`
-- **Hệ thống & Môn:** `GET /api/v1/health` · `GET /api/v1/sports`
+- **Hệ thống, Cấu hình & Môn:** `GET /api/v1/health` · `GET /api/v1/settings` · `GET /api/v1/sports`
 - **Trận đấu & Live:** `GET /api/v1/matches` · `GET /api/v1/matches/{sport}/{eventId}` · `GET /api/v1/matches/{sport}/{eventId}/extended` · `GET /api/v1/live/{sport}`
 - **Quốc gia & Giải đấu:** `GET /api/v1/categories/{sport}` · `GET /api/v1/leagues/{sport}/top` · `GET /api/v1/leagues/{sport}/category/{categoryId}` · `GET /api/v1/competitions/{sport}/{id}`
 - **Xác thực (Bearer Token):** `POST /api/v1/auth/register` · `POST /api/v1/auth/login` · `GET /api/v1/auth/me` · `POST /api/v1/auth/logout`
@@ -263,6 +264,9 @@ Truy cập khi bấm vào bất kỳ tên giải đấu nào (`/competition/{spo
   - Nút **`★`** (Ghim trận lên đầu), **`+ Thêm Trận Đấu Thủ Công`**, **`✏️ Sửa`** (chỉnh tỷ số, trạng thái, phút, tên đội/giải), **`🗑️ Xóa`**.
 - **Tab `🏆 Quản Lý Ưu Tiên Giải Đấu`:**
   - Bấm **`☆ Ghim cả giải lên đầu`** để ghim toàn bộ các trận thuộc giải đấu đó lên đầu trang chủ người dùng chỉ bằng 1 click.
+- **Khối `Cấu hình thông tin trang web` (`#section-settings`):**
+  - Cho phép Admin thay đổi trực tiếp **Tên trang web**, **Khẩu hiệu (Tagline)**, **Môn thể thao mặc định**, **URL Logo & Favicon**, **Mô tả SEO**, **Thông báo nổi đầu trang**, **Nội dung chân trang (Footer)**, **Email liên hệ**, **Link hỗ trợ** và **Bật/Tắt nút Mission Control**.
+  - Lưu vào bảng `site_settings` kèm cache tự động làm mới, đồng bộ tức thì ra toàn bộ giao diện Web và endpoint `GET /api/v1/settings` cho Mobile App.
 
 ---
 
