@@ -26,48 +26,66 @@ class SportsApiController extends Controller
     {
         $payload = is_array($m->payload) ? $m->payload : [];
         $taxonomy = $payload['taxonomy'] ?? [];
-        $participants = $payload['participants'] ?? [];
-        $homeObj = $participants['home'] ?? [];
-        $awayObj = $participants['away'] ?? [];
-        $timing = $payload['timing'] ?? [];
-        $scores = $payload['scores'] ?? [];
         $tourObj = $taxonomy['tournament_league'] ?? [];
+        $countryObj = $taxonomy['country_region'] ?? [];
         $tourId = $tourObj['id'] ?? null;
+
+        $teamsObj = $payload['entities']['teams_or_players'] ?? ($payload['participants'] ?? []);
+        $homeObj = $teamsObj['home'] ?? [];
+        $awayObj = $teamsObj['away'] ?? [];
+
+        $timeline = $payload['match_timeline'] ?? ($payload['timing'] ?? []);
+        $readtimeObj = is_array($timeline['readtime'] ?? null) ? $timeline['readtime'] : [];
+        $scoresObj = $timeline['scores'] ?? ($payload['scores'] ?? []);
+        $periodBreakdown = $scoresObj['period_breakdown'] ?? ($scoresObj['periods'] ?? null);
+
+        $homeBreakdown = is_array($periodBreakdown['home'] ?? null) ? $periodBreakdown['home'] : [];
+        $awayBreakdown = is_array($periodBreakdown['away'] ?? null) ? $periodBreakdown['away'] : [];
 
         return [
             'id' => $m->id,
-            'event_id' => $m->event_id,
+            'event_id' => $m->external_id ?: ($payload['id'] ?? null),
+            'slug' => $payload['slug'] ?? null,
             'sport' => $m->sport_key,
             'match_date' => $m->match_date,
             'start_time_iso' => $m->start_time_iso,
-            'start_timestamp' => $timing['start_timestamp'] ?? ($m->start_time_iso ? strtotime($m->start_time_iso) : null),
+            'start_timestamp' => $timeline['start_timestamp'] ?? ($m->start_time_iso ? strtotime($m->start_time_iso) : null),
             'status' => [
                 'category' => $m->state_category,
-                'name' => $m->status_name,
-                'code' => $timing['status_code'] ?? null,
-                'live_minute' => $timing['live_minute'] ?? null,
+                'description' => $m->status_description ?: ($timeline['status_description'] ?? null),
+                'code' => $timeline['status_code'] ?? null,
+                'live_minute' => $m->readtime ?: ($readtimeObj['minute'] ?? null),
+                'period_start_ts' => $readtimeObj['period_start_ts'] ?? null,
+                'period_state' => $readtimeObj['period_state'] ?? null,
             ],
             'tournament' => [
                 'id' => $tourId,
                 'name' => $m->tournament_name,
-                'country' => $m->country_category,
+                'slug' => $tourObj['slug'] ?? null,
+                'round' => $tourObj['round'] ?? null,
+                'country' => $m->tournament_country ?: ($countryObj['name'] ?? null),
+                'country_code' => $m->country_code ?: null,
                 'logo' => $tourId ? UniScoreApiService::tournamentLogo($m->sport_key, (string) $tourId) : null,
             ],
             'home' => [
                 'id' => $homeObj['id'] ?? null,
                 'name' => $m->home_team,
                 'score' => $m->home_score,
-                'logo' => $homeObj['logo'] ?? null,
-                'red_cards' => $homeObj['red_cards'] ?? null,
+                'logo' => $m->home_logo ?: ($homeObj['logo_url'] ?? ($homeObj['logo'] ?? null)),
+                'red_cards' => $homeBreakdown['red_card'] ?? ($homeObj['red_cards'] ?? null),
+                'yellow_cards' => $homeBreakdown['yellow_card'] ?? null,
+                'corners' => $homeBreakdown['corner'] ?? null,
             ],
             'away' => [
                 'id' => $awayObj['id'] ?? null,
                 'name' => $m->away_team,
                 'score' => $m->away_score,
-                'logo' => $awayObj['logo'] ?? null,
-                'red_cards' => $awayObj['red_cards'] ?? null,
+                'logo' => $m->away_logo ?: ($awayObj['logo_url'] ?? ($awayObj['logo'] ?? null)),
+                'red_cards' => $awayBreakdown['red_card'] ?? ($awayObj['red_cards'] ?? null),
+                'yellow_cards' => $awayBreakdown['yellow_card'] ?? null,
+                'corners' => $awayBreakdown['corner'] ?? null,
             ],
-            'period_scores' => $scores['periods'] ?? ($scores['breakdown'] ?? null),
+            'period_scores' => $periodBreakdown,
             'is_pinned' => (bool) $m->is_pinned,
             'priority_order' => (int) ($m->priority_order ?? 0),
             'updated_at' => $m->updated_at?->toIso8601String(),
