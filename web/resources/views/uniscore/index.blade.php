@@ -1,132 +1,145 @@
 <!DOCTYPE html>
-<html lang="vi" class="dark">
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UNISCORE - Tỷ số trực tiếp 10 môn thể thao</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  @include('partials.fl-head')
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <style>
-    :root { color-scheme: dark; }
-    body {
-      background-color: #0b0d12;
-      color: #d1d5db;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    @media (max-width: 1279px) {
+      #rightDetailAside.is-mobile-open {
+        display: flex !important;
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        width: 100% !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+      }
     }
-    select, input[type="date"], input[type="text"] {
-      background-color: #0f1219 !important;
-      color: #f3f4f6 !important;
-      border-color: #2a3040 !important;
-      color-scheme: dark;
-    }
-    select option {
-      background-color: #141821;
-      color: #f3f4f6;
-    }
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: #0b0d12; }
-    ::-webkit-scrollbar-thumb { background: #2a3040; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #3f485e; }
-    .match-row-active {
-      background-color: #1d2333 !important;
-      border-left: 3px solid #f59e0b;
+    @media (max-width: 1023px) {
+      #leftLeaguesAside.is-mobile-open {
+        display: flex !important;
+        position: fixed;
+        inset: 0;
+        z-index: 55;
+        width: 100% !important;
+        max-width: 320px;
+        max-height: 100vh !important;
+        background: var(--night);
+        padding: 16px;
+        border-right: 1px solid var(--seat);
+        overflow-y: auto;
+      }
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="fl min-h-screen flex flex-col">
 
-  <!-- TOP HEADER (UNISCORE STYLE) -->
-  <header class="bg-[#12151e] border-b border-[#232836] px-4 lg:px-6 h-14 flex items-center justify-between sticky top-0 z-50">
-    <div class="flex items-center gap-5">
-      <a href="{{ route('home') }}" class="flex items-center gap-1 text-xl font-black tracking-tight select-none">
-        <span class="text-[#3b82f6]">UNI</span><span class="text-[#f59e0b]">SCORE</span>
-      </a>
+  <!-- TOP HEADER (FLOODLIGHT STADIUM CHROME) -->
+  <header class="bg-stand border-b border-seat sticky top-0 z-50">
+    <div class="max-w-[1520px] mx-auto px-3 lg:px-5 h-14 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 lg:gap-5 min-w-0">
+        <button type="button" onclick="toggleMobileLeaguesDrawer()"
+                class="lg:hidden fl-btn px-2.5 py-1.5 text-xs" aria-label="Mở danh sách giải đấu">
+          ☰ Giải đấu
+        </button>
 
-      <!-- Search Bar -->
-      <form action="{{ route('home') }}" method="GET" class="hidden sm:flex items-center relative">
-        <input type="hidden" name="sport" value="{{ $sportKey }}">
-        <input type="hidden" name="date" value="{{ $date }}">
-        <input type="hidden" name="status" value="{{ $status }}">
-        <input type="hidden" name="source" value="{{ $source }}">
-        <span class="absolute left-3 text-gray-400 text-xs">🔍</span>
-        <input type="text" name="q" value="{{ $search }}" placeholder="Tìm kiếm đội bóng, giải đấu..."
-               class="pl-8 pr-3 py-1.5 w-64 lg:w-72 rounded-full text-xs border border-[#2a3040] focus:outline-none focus:border-[#f59e0b]">
-      </form>
-    </div>
+        <a href="{{ route('home') }}" class="flex items-center gap-0.5 font-score font-extrabold text-2xl tracking-tight select-none shrink-0">
+          <span class="text-frost">UNI</span><span class="text-live">SCORE</span>
+        </a>
 
-    <!-- Right Navigation -->
-    <div class="flex items-center gap-3 text-xs font-semibold">
-      <div class="hidden md:flex items-center gap-1.5 bg-red-950/50 border border-red-800/70 text-red-400 px-2.5 py-1 rounded-full">
-        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-        <span>LIVE: <b id="globalLiveCount">{{ $liveCount }}</b></span>
+        <!-- Search Bar -->
+        <form action="{{ route('home') }}" method="GET" class="hidden sm:flex items-center relative">
+          <input type="hidden" name="sport" value="{{ $sportKey }}">
+          <input type="hidden" name="date" value="{{ $date }}">
+          <input type="hidden" name="status" value="{{ $status }}">
+          <input type="hidden" name="source" value="{{ $source }}">
+          <input type="text" name="q" value="{{ $search }}" placeholder="Tìm đội bóng hoặc giải đấu..."
+                 class="fl-input pl-3 pr-8 w-60 lg:w-72">
+          <button type="submit" class="absolute right-2.5 text-mist hover:text-frost text-xs" aria-label="Tìm kiếm">🔍</button>
+        </form>
       </div>
-      @if(!empty($topLeagues[0]))
-        <a href="{{ route('competition.show', ['sport' => $sportKey, 'id' => $topLeagues[0]['id'], 'tab' => 'standings']) }}"
-           class="hidden lg:inline-block text-gray-300 hover:text-[#f59e0b] px-2 py-1 transition">XẾP HẠNG</a>
-      @endif
-      <a href="http://localhost:8501" target="_blank"
-         class="bg-[#1b1f2e] hover:bg-[#252b3d] text-purple-300 border border-purple-800/60 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
-        <span>⚙️</span> <span class="hidden sm:inline">Mission Control</span>
-      </a>
-      <a href="{{ route('admin.index') }}"
-         class="bg-[#1b1f2e] hover:bg-[#252b3d] text-amber-300 border border-amber-800/50 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
-        <span>🛠️</span> <span class="hidden sm:inline">Admin</span>
-      </a>
+
+      <!-- Right Navigation -->
+      <div class="flex items-center gap-2 sm:gap-2.5 text-[13px]">
+        <div class="flex items-center gap-2 bg-night border border-seat px-3 py-1.5 rounded-[4px]">
+          <span class="fl-live-dot"></span>
+          <span class="text-mist font-medium">Live</span>
+          <b id="globalLiveCount" class="font-score text-base text-live leading-none">{{ $liveCount }}</b>
+        </div>
+        @if(!empty($topLeagues[0]))
+          <a href="{{ route('competition.show', ['sport' => $sportKey, 'id' => $topLeagues[0]['id'], 'tab' => 'standings']) }}"
+             class="hidden lg:inline-flex fl-btn">Bảng xếp hạng</a>
+        @endif
+        <a href="http://localhost:8501" target="_blank" class="hidden sm:inline-flex fl-btn">
+          Mission Control
+        </a>
+        <a href="{{ route('admin.index') }}" class="fl-btn">
+          Quản trị
+        </a>
+      </div>
     </div>
+
+    <!-- HORIZONTAL SPORT TAB BAR -->
+    <nav class="border-t border-seat/70 bg-night/50" aria-label="Chọn môn thể thao">
+      <div class="max-w-[1520px] mx-auto px-3 lg:px-5 flex items-center gap-1 overflow-x-auto">
+        @foreach($sports as $k => $info)
+          <a href="{{ route('home', ['sport' => $k, 'date' => $date, 'status' => $status, 'source' => $source]) }}"
+             class="fl-tab px-3 py-2.5 text-[13px] flex items-center gap-1.5 shrink-0 {{ $sportKey === $k ? 'is-active' : '' }}">
+            <span>{{ $info['icon'] }}</span>
+            <span>{{ $info['name'] }}</span>
+          </a>
+        @endforeach
+      </div>
+    </nav>
   </header>
 
-  <!-- 4-COLUMN MAIN LAYOUT (UNISCORE EXACT ARCHITECTURE) -->
-  <div class="flex-1 max-w-[1520px] w-full mx-auto px-2 lg:px-4 py-4 flex gap-3 items-start">
+  <!-- 3-COLUMN WORKSPACE: LEAGUES (NAVY) | FLOODLIT MATCH FIELD (LIGHT) | SCOREBOARD DETAIL (NAVY) -->
+  <div class="flex-1 max-w-[1520px] w-full mx-auto px-3 lg:px-5 py-4 flex gap-4 items-start">
 
-    <!-- COLUMN 1: FAR-LEFT VERTICAL SLIM SPORT RAIL -->
-    <aside class="hidden md:flex flex-col w-[76px] shrink-0 bg-[#141720] border border-[#232836] rounded-xl py-2 sticky top-[68px] gap-1">
-      @foreach($sports as $k => $info)
-        <a href="{{ route('home', ['sport' => $k, 'date' => $date, 'status' => $status, 'source' => $source]) }}"
-           class="flex flex-col items-center justify-center py-2 px-1 rounded-lg mx-1 text-center transition {{ $sportKey === $k ? 'bg-[#1f2638] text-[#f59e0b] font-bold border border-[#f59e0b]/40' : 'text-gray-400 hover:bg-[#1b1f2b] hover:text-gray-200' }}">
-          <span class="text-lg leading-none mb-1">{{ $info['icon'] }}</span>
-          <span class="text-[10px] leading-tight line-clamp-1">{{ $info['name'] }}</span>
-        </a>
-      @endforeach
-    </aside>
-
-    <!-- COLUMN 2: LEFT SIDEBAR (GIẢI ĐẤU NỔI BẬT + TẤT CẢ GIẢI ĐẤU THEO QUỐC GIA) -->
-    <aside class="hidden lg:flex flex-col w-[245px] shrink-0 gap-3 sticky top-[68px] max-h-[calc(100vh-84px)] overflow-y-auto pr-0.5">
+    <!-- LEFT SIDEBAR: GIẢI ĐẤU NỔI BẬT + TẤT CẢ GIẢI ĐẤU THEO QUỐC GIA -->
+    <aside id="leftLeaguesAside" class="hidden lg:flex flex-col w-[248px] shrink-0 gap-3 sticky top-[112px] max-h-[calc(100vh-128px)] overflow-y-auto pr-0.5">
+      <div class="flex lg:hidden items-center justify-between pb-2 border-b border-seat">
+        <span class="font-semibold text-frost text-sm">Giải đấu</span>
+        <button type="button" onclick="toggleMobileLeaguesDrawer()" class="fl-btn px-2 py-1 text-xs">Đóng</button>
+      </div>
 
       <!-- CARD 1: GIẢI ĐẤU NỔI BẬT -->
-      <div class="bg-[#141720] border border-[#232836] rounded-xl p-3">
-        <div class="flex items-center justify-between mb-2.5 pb-2 border-b border-[#232836]">
-          <h2 class="text-xs font-bold text-white tracking-wide">Giải Đấu Nổi Bật</h2>
-          <span class="text-[10px] text-[#f59e0b]">★ TOP</span>
+      <div class="fl-panel p-3">
+        <div class="flex items-center justify-between mb-2.5 pb-2 border-b border-seat">
+          <h2 class="text-[13px] font-semibold text-frost">Giải đấu nổi bật</h2>
+          <span class="text-xs text-live" aria-hidden="true">★</span>
         </div>
-        <div class="space-y-1">
+        <div class="space-y-0.5">
           @forelse($topLeagues as $league)
             <a href="{{ route('competition.show', ['sport' => $sportKey, 'id' => $league['id']]) }}"
-               class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-[#1e2330] transition group">
+               class="flex items-center gap-2.5 px-2 py-1.5 rounded-[4px] hover:bg-stand2 transition group">
               <img src="{{ $league['logo'] }}" alt="{{ $league['name'] }}"
-                   class="w-5 h-5 object-contain shrink-0 rounded-sm bg-[#1c202c] p-0.5"
-                   onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(substr($league['name'],0,2)) }}&background=1e2330&color=f59e0b&size=32'">
-              <span class="text-xs text-gray-300 group-hover:text-white truncate">{{ $league['name'] }}</span>
+                   class="w-5 h-5 object-contain shrink-0 rounded-[4px] bg-night p-0.5"
+                   onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(substr($league['name'],0,2)) }}&background=163152&color=E8EEF6&size=32'">
+              <span class="text-[13px] text-frost/90 group-hover:text-frost truncate">{{ $league['name'] }}</span>
             </a>
           @empty
-            <div class="text-xs text-gray-500 py-2">Đang tải giải đấu nổi bật...</div>
+            <div class="text-xs fl-muted py-2">Đang tải giải đấu nổi bật...</div>
           @endforelse
         </div>
       </div>
 
       <!-- CARD 2: TẤT CẢ GIẢI ĐẤU (THEO QUỐC GIA - ACCORDION) -->
-      <div class="bg-[#141720] border border-[#232836] rounded-xl p-3">
+      <div class="fl-panel p-3">
         <div class="flex items-center justify-between mb-2">
-          <h2 class="text-xs font-bold text-white tracking-wide">Tất Cả Giải Đấu</h2>
-          <span class="text-[10px] text-gray-400">{{ count($categories) }} QG</span>
+          <h2 class="text-[13px] font-semibold text-frost">Tất cả giải đấu</h2>
+          <span class="text-xs fl-muted font-score">{{ count($categories) }} khu vực</span>
         </div>
 
         <!-- Country Filter Input -->
-        <div class="mb-2.5 relative">
+        <div class="mb-2.5">
           <input type="text" id="countrySearchInput" oninput="filterCountries()"
-                 placeholder="🔍 Tìm quốc gia..."
-                 class="w-full px-2.5 py-1.5 rounded-lg text-xs border border-[#2a3040] focus:outline-none focus:border-[#f59e0b]">
+                 placeholder="Tìm quốc gia..."
+                 class="fl-input w-full text-xs">
         </div>
 
         <div id="countriesAccordionList" class="space-y-0.5 max-h-[420px] overflow-y-auto pr-1">
@@ -134,21 +147,21 @@
             <div class="country-item" data-name="{{ strtolower($cat['name']) }}">
               <button type="button"
                       onclick="toggleCountry('{{ $sportKey }}', '{{ $cat['id'] }}', this)"
-                      class="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-[#1e2330] transition text-left">
+                      class="w-full flex items-center justify-between px-2 py-1.5 rounded-[4px] hover:bg-stand2 transition text-left">
                 <div class="flex items-center gap-2 min-w-0">
                   <img src="{{ $cat['flag'] }}" alt="{{ $cat['name'] }}"
-                       class="w-4 h-4 rounded-full object-cover shrink-0 bg-[#1c202c]"
+                       class="w-4 h-4 rounded-full object-cover shrink-0 bg-night"
                        onerror="this.src='https://img.uniscore.com/football/competition/international/image/small/dark'">
-                  <span class="text-xs text-gray-300 truncate">{{ $cat['name'] }}</span>
+                  <span class="text-[13px] text-frost/90 truncate">{{ $cat['name'] }}</span>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0">
                   @if(($cat['totalEvents'] ?? 0) > 0)
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-[#1d263b] text-blue-400 font-semibold">{{ $cat['totalEvents'] }}</span>
+                    <span class="text-[11px] font-score px-1.5 py-0.5 rounded-[4px] bg-night text-mist">{{ $cat['totalEvents'] }}</span>
                   @endif
-                  <span class="chevron text-[10px] text-gray-500 transition-transform">▼</span>
+                  <span class="chevron text-[10px] fl-muted transition-transform">▼</span>
                 </div>
               </button>
-              <div class="leagues-drawer hidden pl-5 pr-1 py-1 space-y-1 border-l border-[#232836] ml-3 mt-0.5"></div>
+              <div class="leagues-drawer hidden pl-4 pr-1 py-1 space-y-1 border-l border-seat ml-3 mt-0.5"></div>
             </div>
           @endforeach
         </div>
@@ -156,32 +169,22 @@
 
     </aside>
 
-    <!-- COLUMN 3: CENTER MAIN MATCH LIST -->
+    <!-- CENTER COLUMN: CONTROLS (NAVY) + FLOODLIT MATCH FIELD (LIGHT) -->
     <main class="flex-1 min-w-0 space-y-3">
-
-      <!-- Mobile Sport Selector (visible only on small screens) -->
-      <div class="flex md:hidden gap-1.5 overflow-x-auto pb-1">
-        @foreach($sports as $k => $info)
-          <a href="{{ route('home', ['sport' => $k, 'date' => $date]) }}"
-             class="shrink-0 px-2.5 py-1.5 rounded-lg text-xs {{ $sportKey === $k ? 'bg-[#f59e0b] text-black font-bold' : 'bg-[#141720] text-gray-300 border border-[#232836]' }}">
-            {{ $info['icon'] }} {{ $info['name'] }}
-          </a>
-        @endforeach
-      </div>
 
       <!-- AUTO-SYNC CACHE-THROUGH NOTIFICATION -->
       @if(($autoSyncedCount ?? 0) > 0)
-        <div class="bg-emerald-950/50 border border-emerald-700/60 text-emerald-300 px-3.5 py-2 rounded-xl text-xs flex items-center justify-between">
-          <span>⚡ <strong>Cache-Through Auto-Sync:</strong> Vừa tự động lấy <strong>{{ $autoSyncedCount }}</strong> trận mới từ nguồn gốc và lưu vào CSDL cục bộ!</span>
-          <span class="text-[10px] text-emerald-400/80">{{ $dateFrom === $dateTo ? $dateFrom : "$dateFrom → $dateTo" }}</span>
+        <div class="fl-panel border-goal/50 px-3.5 py-2 text-xs flex items-center justify-between text-frost">
+          <span>Đã đồng bộ thêm <strong class="text-goal font-score text-sm">{{ $autoSyncedCount }}</strong> trận mới vào cơ sở dữ liệu.</span>
+          <span class="text-xs fl-muted">{{ $dateFrom === $dateTo ? $dateFrom : "$dateFrom → $dateTo" }}</span>
         </div>
       @endif
 
-      <!-- DATE STRIP + DATE RANGE PICKER + STATUS PILLS CARD -->
-      <div class="bg-[#141720] border border-[#232836] rounded-xl p-3 space-y-3">
+      <!-- DATE STRIP + DATE RANGE PICKER + STATUS SEGMENTED CONTROL -->
+      <div class="fl-panel p-3 space-y-3">
         <!-- 7-Day Date Strip + Interactive Range Calendar -->
-        <div class="flex flex-wrap items-center justify-between gap-2 pb-1">
-          <div class="flex items-center gap-1.5 overflow-x-auto">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-1 overflow-x-auto">
             @php
               $dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
               $todayStr = date('Y-m-d');
@@ -191,12 +194,12 @@
                 $ts = strtotime("{$offset} days");
                 $dStr = date('Y-m-d', $ts);
                 $isActive = ($dateFrom === $dStr && $dateTo === $dStr);
-                $labelDay = ($dStr === $todayStr) ? 'NAY' : $dayNames[(int)date('w', $ts)];
+                $labelDay = ($dStr === $todayStr) ? 'Hôm nay' : $dayNames[(int)date('w', $ts)];
               @endphp
               <a href="{{ route('home', ['sport' => $sportKey, 'date_from' => $dStr, 'date_to' => $dStr, 'status' => $status, 'source' => $source, 'q' => $search]) }}"
-                 class="flex flex-col items-center px-2.5 py-1 rounded-lg text-center min-w-[50px] transition {{ $isActive ? 'bg-[#252c3f] text-[#f59e0b] border border-[#f59e0b]/50 font-bold' : 'text-gray-400 hover:bg-[#1c202c] hover:text-gray-200' }}">
-                <span class="text-[10px]">{{ $labelDay }}</span>
-                <span class="text-[11px]">{{ date('d/m', $ts) }}</span>
+                 class="flex flex-col items-center px-3 py-1 rounded-[4px] text-center min-w-[56px] transition {{ $isActive ? 'bg-frost text-ink font-semibold' : 'text-mist hover:bg-stand2 hover:text-frost' }}">
+                <span class="text-[11px]">{{ $labelDay }}</span>
+                <span class="text-xs font-score font-semibold">{{ date('d/m', $ts) }}</span>
               </a>
             @endfor
           </div>
@@ -209,236 +212,228 @@
             <input type="hidden" name="q" value="{{ $search }}">
             <input type="hidden" id="dateFromInput" name="date_from" value="{{ $dateFrom }}">
             <input type="hidden" id="dateToInput" name="date_to" value="{{ $dateTo }}">
-            <div class="relative flex items-center">
-              <span class="absolute left-2.5 text-xs pointer-events-none">📅</span>
-              <input type="text" id="dateRangePicker" readonly
-                     value="{{ $dateFrom === $dateTo ? $dateFrom : ($dateFrom . ' to ' . $dateTo) }}"
-                     placeholder="Chọn từ ngày - đến ngày"
-                     class="pl-7 pr-2.5 py-1.5 w-52 rounded-lg text-xs border border-[#2a3040] cursor-pointer focus:border-[#f59e0b]">
-            </div>
-            <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-[#f59e0b] hover:bg-amber-600 text-black font-bold text-xs transition">Lọc</button>
+            <input type="text" id="dateRangePicker" readonly
+                   value="{{ $dateFrom === $dateTo ? $dateFrom : ($dateFrom . ' to ' . $dateTo) }}"
+                   placeholder="Chọn khoảng ngày"
+                   class="fl-input w-48 cursor-pointer text-xs">
+            <button type="submit" class="fl-btn fl-btn--primary text-xs">Lọc</button>
           </form>
         </div>
 
-        <!-- Status Filter Pills & Source Dropdown -->
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#232836] text-xs">
-          <div class="flex items-center gap-1.5">
+        <!-- Status Filter Segmented Control -->
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-seat">
+          <div class="fl-seg overflow-x-auto">
             <a href="{{ route('home', array_merge(request()->query(), ['status' => 'all'])) }}"
-               class="px-3 py-1.5 rounded-full transition {{ $status === 'all' ? 'bg-[#f59e0b] text-black font-bold' : 'bg-[#1b1f2c] text-gray-300 hover:bg-[#252b3d]' }}">
-              Tất cả
-            </a>
+               class="{{ $status === 'all' ? 'is-active' : '' }}">Tất cả</a>
             <a href="{{ route('home', array_merge(request()->query(), ['status' => 'live'])) }}"
-               class="px-3 py-1.5 rounded-full flex items-center gap-1.5 transition {{ $status === 'live' ? 'bg-red-600 text-white font-bold' : 'bg-[#1b1f2c] text-red-400 hover:bg-[#252b3d]' }}">
-              <span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></span> Live
+               class="inline-flex items-center gap-1.5 {{ $status === 'live' ? 'is-active' : '' }}">
+              <span class="fl-live-dot"></span> Live
             </a>
             <a href="{{ route('home', array_merge(request()->query(), ['status' => 'upcoming'])) }}"
-               class="px-3 py-1.5 rounded-full transition {{ $status === 'upcoming' ? 'bg-blue-600 text-white font-bold' : 'bg-[#1b1f2c] text-gray-300 hover:bg-[#252b3d]' }}">
-              Sắp diễn ra
-            </a>
+               class="{{ $status === 'upcoming' ? 'is-active' : '' }}">Sắp diễn ra</a>
             <a href="{{ route('home', array_merge(request()->query(), ['status' => 'finished'])) }}"
-               class="px-3 py-1.5 rounded-full transition {{ $status === 'finished' ? 'bg-emerald-600 text-white font-bold' : 'bg-[#1b1f2c] text-gray-300 hover:bg-[#252b3d]' }}">
-              Kết thúc
-            </a>
+               class="{{ $status === 'finished' ? 'is-active' : '' }}">Kết thúc</a>
           </div>
 
-          <div class="text-[11px] text-gray-400">
-            Tổng: <b class="text-white">{{ $grouped->flatten()->count() }}</b> trận
+          <div class="text-xs fl-muted">
+            Tổng <b class="font-score text-sm text-frost">{{ $grouped->flatten()->count() }}</b> trận
           </div>
         </div>
       </div>
 
-      <!-- MATCHES GROUPED BY TOURNAMENT -->
+      <!-- FLOODLIT MATCH FIELD -->
       @if($grouped->isEmpty())
-        <div class="bg-[#141720] border border-[#232836] rounded-xl p-10 text-center space-y-3">
+        <div class="fl-field border border-chalk p-10 text-center space-y-3">
           <div class="text-4xl">{{ $sports[$sportKey]['icon'] ?? '⚽' }}</div>
-          <h3 class="text-sm font-bold text-white">Chưa có trận đấu nào trong DB cho ngày {{ date('d/m/Y', strtotime($date)) }}</h3>
-          <p class="text-xs text-gray-400 max-w-md mx-auto">
-            Bạn có thể chọn một giải đấu ở cột <strong>Giải Đấu Nổi Bật</strong> bên trái để xem lịch đấu & bảng xếp hạng trực tiếp, hoặc bấm cào thêm dữ liệu tại trang <a href="{{ route('admin.index') }}" class="text-[#f59e0b] underline">Quản trị Admin</a>.
+          <h3 class="font-display text-2xl text-ink">Chưa có trận đấu cho ngày {{ date('d/m/Y', strtotime($date)) }}</h3>
+          <p class="text-[13px] fl-muted max-w-md mx-auto">
+            Chọn một giải đấu ở cột <strong>Giải đấu nổi bật</strong> bên trái để xem lịch đấu và bảng xếp hạng, hoặc vào <a href="{{ route('admin.index') }}" class="text-liveink font-semibold underline">Quản trị</a> để tải thêm dữ liệu.
           </p>
         </div>
       @else
-        @foreach($grouped as $tourName => $matches)
-          @php
-            $firstM = $matches->first();
-            $tourId = $firstM->tournament_id;
-            $tourLogo = $firstM->tournament_logo;
-            $tourRound = $firstM->payload['taxonomy']['tournament_league']['round'] ?? '';
-          @endphp
-          <div class="bg-[#141720] border border-[#232836] rounded-xl overflow-hidden">
-            <!-- Tournament Header (Clickable -> Competition Detail Page) -->
-            <div class="bg-[#191d28] px-3.5 py-2 border-b border-[#232836] flex items-center justify-between">
-              @if($tourId)
-                <a href="{{ route('competition.show', ['sport' => $sportKey, 'id' => $tourId]) }}"
-                   class="flex items-center gap-2.5 hover:text-[#f59e0b] transition group">
-                  <img src="{{ $tourLogo }}" alt="{{ $tourName }}"
-                       class="w-5 h-5 object-contain rounded-sm bg-[#12151e] p-0.5"
-                       onerror="this.style.display='none'">
-                  <div>
-                    <div class="text-xs font-bold text-white group-hover:text-[#f59e0b]">{{ $tourName }}</div>
-                    <div class="text-[10px] text-gray-400">
-                      {{ $firstM->tournament_country ?? 'Quốc tế' }} {{ $tourRound ? '• ' . $tourRound : '' }}
+        <div class="fl-field border border-chalk overflow-hidden divide-y divide-chalk">
+          @foreach($grouped as $tourName => $matches)
+            @php
+              $firstM = $matches->first();
+              $tourId = $firstM->tournament_id;
+              $tourLogo = $firstM->tournament_logo;
+              $tourRound = $firstM->payload['taxonomy']['tournament_league']['round'] ?? '';
+            @endphp
+            <section>
+              <!-- Tournament Header -->
+              <div class="bg-flood2 px-3.5 py-2 border-b border-chalk flex items-center justify-between">
+                @if($tourId)
+                  <a href="{{ route('competition.show', ['sport' => $sportKey, 'id' => $tourId]) }}"
+                     class="flex items-center gap-2.5 group min-w-0">
+                    <img src="{{ $tourLogo }}" alt="{{ $tourName }}"
+                         class="w-5 h-5 object-contain rounded-[4px] bg-white p-0.5 border border-chalk"
+                         onerror="this.style.display='none'">
+                    <div class="min-w-0">
+                      <div class="text-[13px] font-semibold text-ink group-hover:text-liveink truncate">{{ $tourName }}</div>
+                      <div class="text-[11px] fl-muted truncate">
+                        {{ $firstM->tournament_country ?: 'Quốc tế' }}{{ $tourRound ? ' — Vòng ' . $tourRound : '' }}
+                      </div>
+                    </div>
+                  </a>
+                @else
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <span class="text-base">🏆</span>
+                    <div class="min-w-0">
+                      <div class="text-[13px] font-semibold text-ink truncate">{{ $tourName }}</div>
+                      <div class="text-[11px] fl-muted truncate">{{ $firstM->tournament_country ?: 'Quốc tế' }}</div>
                     </div>
                   </div>
-                </a>
-              @else
-                <div class="flex items-center gap-2.5">
-                  <span class="text-base">🏆</span>
-                  <div>
-                    <div class="text-xs font-bold text-white">{{ $tourName }}</div>
-                    <div class="text-[10px] text-gray-400">{{ $firstM->tournament_country ?? 'Quốc tế' }}</div>
-                  </div>
-                </div>
-              @endif
-              <span class="text-[10px] text-gray-500">{{ count($matches) }} trận</span>
-            </div>
+                @endif
+                <span class="text-xs fl-muted font-score shrink-0">{{ count($matches) }} trận</span>
+              </div>
 
-            <!-- Compact UniScore Match Rows -->
-            <div class="divide-y divide-[#1f2433]">
-              @foreach($matches as $m)
-                @php
-                  $isLive = str_contains($m->state_category, 'Live');
-                  $isFinished = str_contains($m->state_category, 'Finished');
-                  $stCode = $m->payload['match_timeline']['status_code'] ?? 0;
-                  $pStartTs = $m->payload['match_timeline']['readtime']['period_start_ts'] ?? 0;
-                  $timeLabel = $m->start_time_iso ? date('H:i', strtotime($m->start_time_iso)) : '--:--';
-                  if ($isLive) {
-                      $timeLabel = ($m->readtime && !preg_match('/^\d{8,}$/', $m->readtime)) ? $m->readtime : 'LIVE';
-                  } elseif ($isFinished) {
-                      $timeLabel = 'FT';
-                  }
-                @endphp
-                <div id="match-row-{{ $m->id }}"
-                     data-external-id="{{ $m->external_id }}"
-                     data-is-live="{{ $isLive ? '1' : '0' }}"
-                     data-status-code="{{ $stCode }}"
-                     data-period-start-ts="{{ $pStartTs }}"
-                     onclick='selectMatchForRightPanel(@json($m), this)'
-                     class="match-row px-3.5 py-2.5 hover:bg-[#1c2130] transition cursor-pointer flex items-center justify-between gap-2 {{ $isLive ? 'border-l-2 border-red-500/80 bg-red-950/10' : '' }} {{ ($defaultMatch && $defaultMatch->id === $m->id) ? 'match-row-active' : '' }}">
+              <!-- Match Rows on Floodlit Surface -->
+              <div class="divide-y divide-chalk/70">
+                @foreach($matches as $m)
+                  @php
+                    $isLive = str_contains($m->state_category, 'Live');
+                    $isFinished = str_contains($m->state_category, 'Finished');
+                    $stCode = $m->payload['match_timeline']['status_code'] ?? 0;
+                    $pStartTs = $m->payload['match_timeline']['readtime']['period_start_ts'] ?? 0;
+                    $timeLabel = $m->start_time_iso ? date('H:i', strtotime($m->start_time_iso)) : '--:--';
+                    if ($isLive) {
+                        $timeLabel = ($m->readtime && !preg_match('/^\d{8,}$/', $m->readtime)) ? $m->readtime : 'Live';
+                    } elseif ($isFinished) {
+                        $timeLabel = 'FT';
+                    }
+                  @endphp
+                  <div id="match-row-{{ $m->id }}"
+                       data-external-id="{{ $m->external_id }}"
+                       data-is-live="{{ $isLive ? '1' : '0' }}"
+                       data-status-code="{{ $stCode }}"
+                       data-period-start-ts="{{ $pStartTs }}"
+                       onclick='selectMatchForRightPanel(@json($m), this)'
+                       class="match-row px-3.5 py-2.5 hover:bg-flood2/80 transition-colors cursor-pointer flex items-center justify-between gap-2 {{ $isLive ? 'bg-[#FFF9EB]' : 'bg-flood' }} {{ ($defaultMatch && $defaultMatch->id === $m->id) ? 'match-row-active' : '' }}">
 
-                  <!-- Left: LIVE Badge + Time / Live Minute / FT -->
-                  <div class="w-16 shrink-0 flex flex-col items-center justify-center leading-tight">
-                    @if($isLive)
-                      <span class="live-badge-pill inline-flex items-center gap-1 px-1.5 py-0.5 mb-0.5 rounded bg-red-600/90 text-[9px] font-black text-white tracking-wider uppercase shadow-sm">
-                        <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-                        LIVE
-                      </span>
-                    @endif
-                    <span class="live-clock-cell text-[11px] font-mono font-bold {{ $isLive ? 'text-[#22c55e]' : ($isFinished ? 'text-gray-400' : 'text-gray-300') }}">
-                      {{ $timeLabel }}
-                    </span>
-                  </div>
-
-                  <!-- Center: Home [Logo] [Score] [Logo] Away -->
-                  <div class="flex-1 grid grid-cols-[1fr_auto_1fr] items-center gap-2.5 min-w-0">
-                    <!-- Home -->
-                    <div class="flex items-center justify-end gap-2 min-w-0">
-                      <span class="text-xs font-semibold text-gray-100 truncate text-right">{{ $m->home_team }}</span>
-                      <img src="{{ $m->home_logo }}" alt="{{ $m->home_team }}"
-                           class="w-5 h-5 object-contain shrink-0 rounded-sm"
-                           onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(substr($m->home_team,0,2)) }}&background=1e2330&color=fff&size=32'">
-                    </div>
-
-                    <!-- Score Box -->
-                    <div class="live-score-cell px-2.5 py-1 rounded bg-[#0f1219] border border-[#252b3d] text-xs font-black min-w-[54px] text-center transition-colors {{ $isLive ? 'text-[#f59e0b] border-[#f59e0b]/40' : 'text-white' }}">
-                      @if($m->home_score !== null && $m->away_score !== null)
-                        {{ $m->home_score }} - {{ $m->away_score }}
-                      @else
-                        {{ $m->start_time_iso ? date('H:i', strtotime($m->start_time_iso)) : 'vs' }}
+                    <!-- Left: Time / Live Minute / FT -->
+                    <div class="w-16 shrink-0 flex flex-col items-center justify-center leading-tight">
+                      @if($isLive)
+                        <span class="live-badge-pill inline-flex items-center gap-1 px-1.5 py-0.5 mb-0.5 rounded-[4px] bg-live/20 text-[10px] font-semibold text-liveink">
+                          <span class="fl-live-dot" style="width:5px;height:5px;"></span>
+                          Live
+                        </span>
                       @endif
+                      <span class="live-clock-cell font-score text-sm font-bold {{ $isLive ? 'text-liveink' : ($isFinished ? 'text-ink2' : 'text-ink') }}">
+                        {{ $timeLabel }}
+                      </span>
                     </div>
 
-                    <!-- Away -->
-                    <div class="flex items-center justify-start gap-2 min-w-0">
-                      <img src="{{ $m->away_logo }}" alt="{{ $m->away_team }}"
-                           class="w-5 h-5 object-contain shrink-0 rounded-sm"
-                           onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(substr($m->away_team,0,2)) }}&background=1e2330&color=fff&size=32'">
-                      <span class="text-xs font-semibold text-gray-100 truncate">{{ $m->away_team }}</span>
+                    <!-- Center: Home [Logo] [Score] [Logo] Away -->
+                    <div class="flex-1 grid grid-cols-[1fr_auto_1fr] items-center gap-2.5 min-w-0">
+                      <div class="flex items-center justify-end gap-2 min-w-0">
+                        <span class="text-[13px] font-medium text-ink truncate text-right">{{ $m->home_team }}</span>
+                        <img src="{{ $m->home_logo }}" alt="{{ $m->home_team }}"
+                             class="w-5 h-5 object-contain shrink-0 rounded-[4px]"
+                             onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(substr($m->home_team,0,2)) }}&background=D3DCE7&color=0C1A2C&size=32'">
+                      </div>
+
+                      <div class="live-score-cell font-score text-lg font-bold px-2.5 py-0.5 rounded-[4px] min-w-[58px] text-center border transition-colors {{ $isLive ? 'bg-[#FFF2D1] border-live text-liveink' : 'bg-white border-chalk text-ink' }}">
+                        @if($m->home_score !== null && $m->away_score !== null)
+                          {{ $m->home_score }} - {{ $m->away_score }}
+                        @else
+                          {{ $m->start_time_iso ? date('H:i', strtotime($m->start_time_iso)) : 'vs' }}
+                        @endif
+                      </div>
+
+                      <div class="flex items-center justify-start gap-2 min-w-0">
+                        <img src="{{ $m->away_logo }}" alt="{{ $m->away_team }}"
+                             class="w-5 h-5 object-contain shrink-0 rounded-[4px]"
+                             onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(substr($m->away_team,0,2)) }}&background=D3DCE7&color=0C1A2C&size=32'">
+                        <span class="text-[13px] font-medium text-ink truncate">{{ $m->away_team }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Right: Pin Star -->
+                    <div class="w-7 shrink-0 flex justify-end" onclick="event.stopPropagation()">
+                      <form action="{{ route('admin.matches.pin', $m->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" title="Ghim ưu tiên"
+                                class="text-sm {{ $m->is_pinned ? 'text-live' : 'text-ink2/35 hover:text-ink2' }}">★</button>
+                      </form>
                     </div>
                   </div>
-
-                  <!-- Right: Pin Star -->
-                  <div class="w-7 shrink-0 flex justify-end" onclick="event.stopPropagation()">
-                    <form action="{{ route('admin.matches.pin', $m->id) }}" method="POST">
-                      @csrf
-                      <button type="submit" title="Ghim ưu tiên"
-                              class="text-sm {{ $m->is_pinned ? 'text-[#f59e0b]' : 'text-gray-600 hover:text-gray-300' }}">★</button>
-                    </form>
-                  </div>
-                </div>
-              @endforeach
-            </div>
-          </div>
-        @endforeach
+                @endforeach
+              </div>
+            </section>
+          @endforeach
+        </div>
       @endif
 
     </main>
 
-    <!-- COLUMN 4: RIGHT STICKY MATCH DETAIL PANEL (INLINE LIKE UNISCORE!) -->
-    <aside class="hidden xl:flex flex-col w-[380px] shrink-0 bg-[#141720] border border-[#232836] rounded-xl overflow-hidden sticky top-[68px] max-h-[calc(100vh-84px)]">
-      <div id="rightPanelEmpty" class="p-8 text-center text-xs text-gray-500 {{ $defaultMatch ? 'hidden' : '' }}">
+    <!-- RIGHT SCOREBOARD PANEL (NAVY) -->
+    <aside id="rightDetailAside" class="hidden xl:flex flex-col w-[390px] shrink-0 fl-panel overflow-hidden sticky top-[112px] max-h-[calc(100vh-128px)]" style="border-radius: var(--r-lg);">
+      <div class="flex xl:hidden items-center justify-between px-4 py-2.5 bg-night border-b border-seat">
+        <span class="text-sm font-semibold text-frost">Chi tiết trận đấu</span>
+        <button type="button" onclick="closeMobileRightPanel()" class="fl-btn px-2.5 py-1 text-xs">Đóng</button>
+      </div>
+
+      <div id="rightPanelEmpty" class="p-8 text-center text-xs fl-muted {{ $defaultMatch ? 'hidden' : '' }}">
         <div class="text-3xl mb-2">⚽</div>
-        Chọn một trận đấu ở danh sách giữa để xem chi tiết trực tiếp, thống kê và đội hình.
+        Chọn một trận đấu ở danh sách giữa để xem chi tiết, thống kê và đội hình.
       </div>
 
       <div id="rightPanelContent" class="flex flex-col h-full overflow-hidden {{ $defaultMatch ? '' : 'hidden' }}">
         <!-- Hero Scoreboard -->
-        <div class="bg-gradient-to-b from-[#1c2130] to-[#141720] p-4 border-b border-[#232836]">
-          <div class="flex items-center justify-between text-[11px] text-gray-400 mb-3">
-            <a id="rpTourLink" href="#" class="flex items-center gap-1.5 hover:text-[#f59e0b] truncate">
-              <span id="rpTourName" class="font-semibold text-gray-300 truncate">Giải đấu</span>
+        <div class="bg-stand2/60 p-4 border-b border-seat">
+          <div class="flex items-center justify-between gap-2 text-xs fl-muted mb-3">
+            <a id="rpTourLink" href="#" class="flex items-center gap-1.5 hover:text-live truncate">
+              <span id="rpTourName" class="font-semibold text-frost truncate">Giải đấu</span>
             </a>
-            <span id="rpSourceBadge" class="text-[10px] px-1.5 py-0.5 rounded bg-[#0f1219] border border-[#2a3040] uppercase">UNISCORE</span>
+            <span id="rpSourceBadge" class="text-[11px] px-2 py-0.5 rounded-[4px] bg-night border border-seat text-mist shrink-0">UniScore</span>
           </div>
 
           <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-center">
-            <!-- Home -->
             <div class="flex flex-col items-center">
-              <img id="rpHomeLogo" src="" class="w-12 h-12 object-contain mb-1.5 rounded-lg bg-[#0f1219] p-1 border border-[#232836]">
-              <div id="rpHomeName" class="text-xs font-bold text-white line-clamp-2">Home</div>
+              <img id="rpHomeLogo" src="" class="w-12 h-12 object-contain mb-1.5 rounded-[8px] bg-night p-1 border border-seat">
+              <div id="rpHomeName" class="text-[13px] font-semibold text-frost line-clamp-2">Home</div>
             </div>
 
-            <!-- Center Score -->
             <div class="px-2">
-              <div id="rpLiveBadge" class="hidden inline-flex items-center gap-1 px-2 py-0.5 mb-1 rounded-full bg-red-600 text-[9px] font-black text-white tracking-wider uppercase">
-                <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-                ĐANG LIVE
+              <div id="rpLiveBadge" class="hidden inline-flex items-center gap-1.5 px-2.5 py-0.5 mb-1.5 rounded-[4px] bg-live/20 border border-live/50 text-[11px] font-semibold text-live">
+                <span class="fl-live-dot" style="width:6px;height:6px;"></span>
+                Đang diễn ra
               </div>
-              <div id="rpScoreBox" class="text-2xl font-black text-white tracking-wider bg-[#0f1219] border border-[#2a3040] rounded-lg px-3 py-1">
+              <div id="rpScoreBox" class="font-score text-4xl font-extrabold text-frost tracking-wide bg-night border border-seat rounded-[8px] px-4 py-1">
                 0 - 0
               </div>
-              <div id="rpStatusLabel" class="text-[11px] font-bold text-[#22c55e] mt-1">Upcoming</div>
+              <div id="rpStatusLabel" class="font-score text-sm font-bold text-mist mt-1">Upcoming</div>
             </div>
 
-            <!-- Away -->
             <div class="flex flex-col items-center">
-              <img id="rpAwayLogo" src="" class="w-12 h-12 object-contain mb-1.5 rounded-lg bg-[#0f1219] p-1 border border-[#232836]">
-              <div id="rpAwayName" class="text-xs font-bold text-white line-clamp-2">Away</div>
+              <img id="rpAwayLogo" src="" class="w-12 h-12 object-contain mb-1.5 rounded-[8px] bg-night p-1 border border-seat">
+              <div id="rpAwayName" class="text-[13px] font-semibold text-frost line-clamp-2">Away</div>
             </div>
           </div>
 
-          <div id="rpMetaInfo" class="mt-3 pt-2 border-t border-[#232836]/70 flex items-center justify-center gap-4 text-[10px] text-gray-400">
+          <div id="rpMetaInfo" class="mt-3 pt-2 border-t border-seat/70 flex items-center justify-center gap-4 text-[11px] fl-muted">
             <span id="rpVenue">🏟️ Sân vận động</span>
             <span id="rpReferee">🧑‍⚖️ Trọng tài</span>
           </div>
         </div>
 
-        <!-- Tabs (Full UniScore Match Center Tabs) -->
-        <div class="flex border-b border-[#232836] bg-[#10131b] px-2 pt-1.5 gap-0.5 text-[11px] font-semibold overflow-x-auto">
-          <button onclick="switchRpTab('details')" id="rpTabBtn-details" class="px-2.5 py-2 border-b-2 border-[#f59e0b] text-[#f59e0b] shrink-0">Chi Tiết</button>
-          <button onclick="switchRpTab('lineups')" id="rpTabBtn-lineups" class="px-2.5 py-2 border-b-2 border-transparent text-gray-400 hover:text-white shrink-0">Đội Hình</button>
-          <button onclick="switchRpTab('stats')" id="rpTabBtn-stats" class="px-2.5 py-2 border-b-2 border-transparent text-gray-400 hover:text-white shrink-0">Thống Kê</button>
-          <button onclick="switchRpTab('commentary')" id="rpTabBtn-commentary" class="px-2.5 py-2 border-b-2 border-transparent text-gray-400 hover:text-white shrink-0">Tường Thuật</button>
-          <button onclick="switchRpTab('h2h')" id="rpTabBtn-h2h" class="px-2.5 py-2 border-b-2 border-transparent text-gray-400 hover:text-white shrink-0">Đối Đầu</button>
-          <button onclick="switchRpTab('analytics')" id="rpTabBtn-analytics" class="px-2.5 py-2 border-b-2 border-transparent text-gray-400 hover:text-white shrink-0">Phân Tích AI</button>
-          <button onclick="switchRpTab('standings')" id="rpTabBtn-standings" class="px-2.5 py-2 border-b-2 border-transparent text-gray-400 hover:text-white shrink-0">BXH</button>
-          <button onclick="switchRpTab('bracket')" id="rpTabBtn-bracket" class="px-2.5 py-2 border-b-2 border-transparent text-gray-400 hover:text-white shrink-0">Nhánh Đấu</button>
-          <button onclick="switchRpTab('json')" id="rpTabBtn-json" class="px-2.5 py-2 border-b-2 border-transparent text-gray-400 hover:text-white shrink-0">JSON</button>
+        <!-- Tabs -->
+        <div class="flex flex-wrap border-b border-seat bg-night/70 px-2 pt-1 gap-x-1 gap-y-0.5 text-xs font-semibold">
+          <button onclick="switchRpTab('details')" id="rpTabBtn-details" class="fl-tab is-active px-2.5 py-2 shrink-0">Chi tiết</button>
+          <button onclick="switchRpTab('lineups')" id="rpTabBtn-lineups" class="fl-tab px-2.5 py-2 shrink-0">Đội hình</button>
+          <button onclick="switchRpTab('stats')" id="rpTabBtn-stats" class="fl-tab px-2.5 py-2 shrink-0">Thống kê</button>
+          <button onclick="switchRpTab('commentary')" id="rpTabBtn-commentary" class="fl-tab px-2.5 py-2 shrink-0">Tường thuật</button>
+          <button onclick="switchRpTab('h2h')" id="rpTabBtn-h2h" class="fl-tab px-2.5 py-2 shrink-0">Đối đầu</button>
+          <button onclick="switchRpTab('analytics')" id="rpTabBtn-analytics" class="fl-tab px-2.5 py-2 shrink-0">Phân tích AI</button>
+          <button onclick="switchRpTab('standings')" id="rpTabBtn-standings" class="fl-tab px-2.5 py-2 shrink-0">BXH</button>
+          <button onclick="switchRpTab('bracket')" id="rpTabBtn-bracket" class="fl-tab px-2.5 py-2 shrink-0">Nhánh đấu</button>
+          <button onclick="switchRpTab('json')" id="rpTabBtn-json" class="fl-tab px-2.5 py-2 shrink-0">JSON</button>
         </div>
 
         <!-- Tab Body (Scrollable) -->
         <div class="flex-1 overflow-y-auto p-3.5 text-xs">
-          <div id="rpLoadingBar" class="hidden mb-3 text-center text-[11px] text-gray-300 bg-[#1c2130] border border-[#2a3040] rounded-lg py-1.5">
-            ⏳ Đang tải chi tiết trận đấu...
+          <div id="rpLoadingBar" class="hidden mb-3 text-center text-xs text-mist bg-stand2 border border-seat rounded-[4px] py-1.5">
+            Đang tải chi tiết trận đấu...
           </div>
           <div id="rpTab-details" class="space-y-3"></div>
           <div id="rpTab-lineups" class="hidden space-y-3"></div>
@@ -449,7 +444,7 @@
           <div id="rpTab-standings" class="hidden space-y-2"></div>
           <div id="rpTab-bracket" class="hidden space-y-3"></div>
           <div id="rpTab-json" class="hidden">
-            <pre id="rpJsonPre" class="bg-[#0a0c10] p-3 rounded-lg border border-[#232836] text-[11px] text-blue-300 font-mono overflow-x-auto"></pre>
+            <pre id="rpJsonPre" class="bg-night p-3 rounded-[4px] border border-seat text-[11px] text-frost/90 font-mono overflow-x-auto"></pre>
           </div>
         </div>
       </div>
@@ -485,7 +480,7 @@
 
       if (drawer.dataset.loaded === '1') return;
 
-      drawer.innerHTML = '<div class="text-[11px] text-gray-500 py-1">Đang tải giải đấu...</div>';
+      drawer.innerHTML = '<div class="text-[11px] text-mist py-1">Đang tải giải đấu...</div>';
       try {
         const res = await fetch(`/api/leagues/${sportKey}/${categoryId}`);
         const data = await res.json();
@@ -493,14 +488,14 @@
         drawer.dataset.loaded = '1';
 
         if (leagues.length === 0) {
-          drawer.innerHTML = '<div class="text-[11px] text-gray-500 py-1">Không có giải đấu nào.</div>';
+          drawer.innerHTML = '<div class="text-[11px] text-mist py-1">Không có giải đấu nào.</div>';
           return;
         }
 
         drawer.innerHTML = leagues.map(lg => `
           <a href="/competition/${sportKey}/${lg.id}"
-             class="flex items-center gap-2 px-2 py-1 rounded hover:bg-[#1e2330] text-[11px] text-gray-300 hover:text-[#f59e0b] transition">
-            <img src="${lg.logo}" class="w-4 h-4 object-contain shrink-0 rounded-sm bg-[#12151e]"
+             class="flex items-center gap-2 px-2 py-1 rounded hover:bg-[#163152] text-[11px] text-frost/90 hover:text-[#FFB020] transition">
+            <img src="${lg.logo}" class="w-4 h-4 object-contain shrink-0 rounded-sm bg-[#10253F]"
                  onerror="this.style.display='none'">
             <span class="truncate">${lg.name}</span>
           </a>
@@ -610,17 +605,34 @@
     let cachedLiveIncidents = [];
     let commentaryFilter = 'all';
 
+    function toggleMobileLeaguesDrawer() {
+      const aside = document.getElementById('leftLeaguesAside');
+      if (aside) aside.classList.toggle('is-mobile-open');
+    }
+    function closeMobileRightPanel() {
+      const aside = document.getElementById('rightDetailAside');
+      if (aside) aside.classList.remove('is-mobile-open');
+    }
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1280) {
+        document.getElementById('rightDetailAside')?.classList.remove('is-mobile-open');
+      }
+      if (window.innerWidth >= 1024) {
+        document.getElementById('leftLeaguesAside')?.classList.remove('is-mobile-open');
+      }
+    });
+
     function switchRpTab(tab) {
       ['details', 'lineups', 'stats', 'commentary', 'h2h', 'analytics', 'standings', 'bracket', 'json'].forEach(t => {
         const el = document.getElementById(`rpTab-${t}`);
         const btn = document.getElementById(`rpTabBtn-${t}`);
         if (el) el.classList.add('hidden');
-        if (btn) btn.className = 'px-2.5 py-2 border-b-2 border-transparent text-gray-400 hover:text-white shrink-0';
+        if (btn) btn.classList.remove('is-active');
       });
       const activeEl = document.getElementById(`rpTab-${tab}`);
       const activeBtn = document.getElementById(`rpTabBtn-${tab}`);
       if (activeEl) activeEl.classList.remove('hidden');
-      if (activeBtn) activeBtn.className = 'px-2.5 py-2 border-b-2 border-[#f59e0b] text-[#f59e0b] shrink-0';
+      if (activeBtn) activeBtn.classList.add('is-active');
     }
 
     async function selectMatchForRightPanel(match, rowEl) {
@@ -633,6 +645,9 @@
 
       document.getElementById('rightPanelEmpty').classList.add('hidden');
       document.getElementById('rightPanelContent').classList.remove('hidden');
+      if (rowEl && window.innerWidth < 1280 && !window.__initialLoad) {
+        document.getElementById('rightDetailAside')?.classList.add('is-mobile-open');
+      }
 
       const payload = match.payload || {};
       const tax = payload.taxonomy || {};
@@ -668,7 +683,7 @@
         stText = (match.readtime && !/^\d{8,}$/.test(match.readtime)) ? match.readtime : 'ĐANG DIỄN RA';
       }
       document.getElementById('rpStatusLabel').innerText = stText;
-      document.getElementById('rpStatusLabel').className = isLive ? 'text-[11px] font-mono font-bold text-[#22c55e] mt-1' : 'text-[11px] font-bold text-gray-400 mt-1';
+      document.getElementById('rpStatusLabel').className = isLive ? 'text-[11px] font-score font-bold text-[#2FBF71] mt-1' : 'text-[11px] font-bold text-mist mt-1';
 
       const venue = ent.venue || {};
       const officials = ent.match_officials || [];
@@ -855,16 +870,16 @@
       const corners = findStat(['corner_kicks']);
 
       if (poss || xg || sot || dang || corners) {
-        html += `<div class="bg-[#0f1219] border border-[#232836] rounded-xl p-3 space-y-2.5">`;
+        html += `<div class="bg-[#0A1B30] border border-[#22406A] rounded-xl p-3 space-y-2.5">`;
         if (poss) {
           const hp = parseFloat(poss.homeValue ?? poss.home) || 50;
           const ap = parseFloat(poss.awayValue ?? poss.away) || 50;
           html += `
             <div>
-              <div class="text-center text-[10px] text-gray-400 mb-1">Tỷ Lệ Kiểm Soát Bóng</div>
+              <div class="text-center text-[10px] text-mist mb-1">Tỷ Lệ Kiểm Soát Bóng</div>
               <div class="flex h-5 rounded-full overflow-hidden text-[11px] font-bold">
-                <div class="bg-blue-600 text-white flex items-center justify-center" style="width:${hp}%">${poss.home ?? hp + '%'}</div>
-                <div class="bg-[#d97706] text-white flex items-center justify-center" style="width:${ap}%">${poss.away ?? ap + '%'}</div>
+                <div class="bg-blue-600 text-frost flex items-center justify-center" style="width:${hp}%">${poss.home ?? hp + '%'}</div>
+                <div class="bg-[#FFB020] text-frost flex items-center justify-center" style="width:${ap}%">${poss.away ?? ap + '%'}</div>
               </div>
             </div>
           `;
@@ -880,7 +895,7 @@
           html += `
             <div class="flex items-center justify-between text-[11px]">
               <span class="px-2 py-0.5 rounded-full bg-blue-950 text-blue-300 font-bold min-w-[34px] text-center">${r.item.home ?? r.item.homeValue}</span>
-              <span class="text-gray-300">${r.label}</span>
+              <span class="text-frost/90">${r.label}</span>
               <span class="px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 font-bold min-w-[34px] text-center">${r.item.away ?? r.item.awayValue}</span>
             </div>
           `;
@@ -903,11 +918,11 @@
             return `${i === 0 ? 'M' : 'L'}${x},${y}`;
           }).join(' ');
           const lastDiff = diffs[diffs.length - 1];
-          const strokeColor = lastDiff >= 0 ? '#3b82f6' : '#f59e0b';
+          const strokeColor = lastDiff >= 0 ? '#8EA3BF' : '#FFB020';
 
           html += `
-            <div class="bg-[#0f1219] border border-[#232836] rounded-xl p-3">
-              <div class="text-[10px] text-gray-400 font-semibold mb-2">Thông số dẫn điểm (Lead Chart)</div>
+            <div class="bg-[#0A1B30] border border-[#22406A] rounded-xl p-3">
+              <div class="text-[10px] text-mist font-semibold mb-2">Thông số dẫn điểm (Lead Chart)</div>
               <div class="flex items-center gap-2">
                 <div class="flex flex-col justify-between h-[80px] shrink-0">
                   <img src="${match.home_logo || ''}" class="w-4 h-4 object-contain" onerror="this.style.display='none'">
@@ -915,17 +930,17 @@
                 </div>
                 <div class="flex-1 relative">
                   <svg viewBox="0 0 ${W} ${H}" class="w-full h-[84px] overflow-visible">
-                    <line x1="0" y1="${midY}" x2="${W}" y2="${midY}" stroke="#2a3040" stroke-dasharray="3,3" stroke-width="1"/>
-                    <line x1="${W*0.25}" y1="0" x2="${W*0.25}" y2="${H}" stroke="#1c202c" stroke-width="1"/>
-                    <line x1="${W*0.5}" y1="0" x2="${W*0.5}" y2="${H}" stroke="#1c202c" stroke-width="1"/>
-                    <line x1="${W*0.75}" y1="0" x2="${W*0.75}" y2="${H}" stroke="#1c202c" stroke-width="1"/>
+                    <line x1="0" y1="${midY}" x2="${W}" y2="${midY}" stroke="#22406A" stroke-dasharray="3,3" stroke-width="1"/>
+                    <line x1="${W*0.25}" y1="0" x2="${W*0.25}" y2="${H}" stroke="#163152" stroke-width="1"/>
+                    <line x1="${W*0.5}" y1="0" x2="${W*0.5}" y2="${H}" stroke="#163152" stroke-width="1"/>
+                    <line x1="${W*0.75}" y1="0" x2="${W*0.75}" y2="${H}" stroke="#163152" stroke-width="1"/>
                     <path d="${pathPts}" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
                   </svg>
-                  <div class="flex justify-between text-[9px] text-gray-500 mt-1 px-0.5">
+                  <div class="flex justify-between text-[9px] text-mist mt-1 px-0.5">
                     <span>0</span><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span>
                   </div>
                 </div>
-                <div class="flex flex-col justify-between h-[80px] text-[9px] text-gray-500 font-mono text-right w-5 shrink-0">
+                <div class="flex flex-col justify-between h-[80px] text-[9px] text-mist font-score text-right w-5 shrink-0">
                   <span>+${maxAbs}</span><span>0</span><span>${maxAbs}</span>
                 </div>
               </div>
@@ -942,28 +957,28 @@
           const hasOt = (hb.overtime > 0 || ab.overtime > 0 || hb.overTime > 0 || ab.overTime > 0);
           const hOt = hb.overtime ?? hb.overTime ?? '-';
           const aOt = ab.overtime ?? ab.overTime ?? '-';
-          const cellCls = (v1, v2) => (Number(v1) > Number(v2)) ? 'text-[#f59e0b] font-black' : 'text-gray-200';
+          const cellCls = (v1, v2) => (Number(v1) > Number(v2)) ? 'text-[#FFB020] font-black' : 'text-frost';
 
           html += `
-            <div class="bg-[#0f1219] border border-[#232836] rounded-xl overflow-hidden">
+            <div class="bg-[#0A1B30] border border-[#22406A] rounded-xl overflow-hidden">
               <table class="w-full text-center text-[11px]">
-                <thead class="bg-[#161b26] text-gray-400 border-b border-[#232836]">
+                <thead class="bg-[#163152] text-mist border-b border-[#22406A]">
                   <tr>
                     <th class="py-1.5 px-2 text-left">Đội</th>
-                    <th class="py-1.5 px-1.5 text-white">Tổng trận</th>
+                    <th class="py-1.5 px-1.5 text-frost">Tổng trận</th>
                     <th class="py-1.5 px-1.5">1</th>
                     <th class="py-1.5 px-1.5">2</th>
                     <th class="py-1.5 px-1.5">3</th>
                     <th class="py-1.5 px-1.5">4</th>
-                    ${hasOt ? '<th class="py-1.5 px-1.5 text-[#f59e0b]">OT</th>' : ''}
+                    ${hasOt ? '<th class="py-1.5 px-1.5 text-[#FFB020]">OT</th>' : ''}
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-[#1f2433] font-mono">
+                <tbody class="divide-y divide-[#22406A] font-score">
                   <tr>
                     <td class="py-2 px-2 text-left">
                       <div class="flex items-center gap-1.5">
                         <img src="${match.home_logo || ''}" class="w-4 h-4 object-contain" onerror="this.style.display='none'">
-                        <span class="font-sans font-bold text-white truncate max-w-[90px]">${match.home_team}</span>
+                        <span class="font-sans font-bold text-frost truncate max-w-[90px]">${match.home_team}</span>
                       </div>
                     </td>
                     <td class="py-2 px-1.5 ${cellCls(hTot, aTot)}">${hTot}</td>
@@ -977,7 +992,7 @@
                     <td class="py-2 px-2 text-left">
                       <div class="flex items-center gap-1.5">
                         <img src="${match.away_logo || ''}" class="w-4 h-4 object-contain" onerror="this.style.display='none'">
-                        <span class="font-sans font-bold text-white truncate max-w-[90px]">${match.away_team}</span>
+                        <span class="font-sans font-bold text-frost truncate max-w-[90px]">${match.away_team}</span>
                       </div>
                     </td>
                     <td class="py-2 px-1.5 ${cellCls(aTot, hTot)}">${aTot}</td>
@@ -1006,13 +1021,13 @@
 
         if (bkbSummary.length > 0) {
           html += `
-            <div class="bg-[#0f1219] border border-[#232836] rounded-xl p-3 space-y-2">
-              <div class="text-[10px] text-gray-400 font-semibold">Tổng quan thông số</div>
+            <div class="bg-[#0A1B30] border border-[#22406A] rounded-xl p-3 space-y-2">
+              <div class="text-[10px] text-mist font-semibold">Tổng quan thông số</div>
               ${bkbSummary.map(r => `
                 <div class="flex items-center justify-between text-[11px] py-0.5">
-                  <span class="px-2 py-0.5 rounded-full font-bold min-w-[34px] text-center ${r.hv > r.av ? 'bg-blue-600/80 text-white' : 'text-gray-300'}">${r.h}</span>
-                  <span class="text-gray-300">${r.label}</span>
-                  <span class="px-2 py-0.5 rounded-full font-bold min-w-[34px] text-center ${r.av > r.hv ? 'border border-[#f59e0b] text-[#f59e0b]' : 'text-gray-300'}">${r.a}</span>
+                  <span class="px-2 py-0.5 rounded-full font-bold min-w-[34px] text-center ${r.hv > r.av ? 'bg-blue-600/80 text-frost' : 'text-frost/90'}">${r.h}</span>
+                  <span class="text-frost/90">${r.label}</span>
+                  <span class="px-2 py-0.5 rounded-full font-bold min-w-[34px] text-center ${r.av > r.hv ? 'border border-[#FFB020] text-[#FFB020]' : 'text-frost/90'}">${r.a}</span>
                 </div>
               `).join('')}
             </div>
@@ -1030,31 +1045,31 @@
         const hTot = (pb.ft && pb.ft[0] !== undefined) ? pb.ft[0] : (match.home_score ?? '-');
         const aTot = (pb.ft && pb.ft[1] !== undefined) ? pb.ft[1] : (match.away_score ?? '-');
         const totPts = scores?.total_points || null;
-        const cellCls = (v1, v2) => (Number(v1) > Number(v2)) ? 'text-[#f59e0b] font-black' : 'text-gray-200';
+        const cellCls = (v1, v2) => (Number(v1) > Number(v2)) ? 'text-[#FFB020] font-black' : 'text-frost';
 
         html += `
-          <div class="bg-[#0f1219] border border-[#232836] rounded-xl overflow-hidden">
-            <div class="bg-[#161b26] px-3 py-1.5 border-b border-[#232836] flex justify-between items-center text-[10px]">
-              <span class="font-bold text-gray-300 uppercase">Bảng điểm từng Set</span>
-              ${totPts ? `<span class="text-[#f59e0b] font-mono font-bold">Tổng điểm: ${totPts.home} - ${totPts.away}</span>` : ''}
+          <div class="bg-[#0A1B30] border border-[#22406A] rounded-xl overflow-hidden">
+            <div class="bg-[#163152] px-3 py-1.5 border-b border-[#22406A] flex justify-between items-center text-[10px]">
+              <span class="font-bold text-frost/90 uppercase">Bảng điểm từng Set</span>
+              ${totPts ? `<span class="text-[#FFB020] font-score font-bold">Tổng điểm: ${totPts.home} - ${totPts.away}</span>` : ''}
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-center text-[11px]">
-                <thead class="bg-[#12151e] text-gray-400 border-b border-[#232836]">
+                <thead class="bg-[#10253F] text-mist border-b border-[#22406A]">
                   <tr>
                     <th class="py-1.5 px-2 text-left">VĐV / Đội</th>
-                    <th class="py-1.5 px-1.5 text-white">Set</th>
+                    <th class="py-1.5 px-1.5 text-frost">Set</th>
                     ${sets.map(s => `<th class="py-1.5 px-1.5">S${s.idx}</th>`).join('')}
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-[#1f2433] font-mono">
+                <tbody class="divide-y divide-[#22406A] font-score">
                   <tr>
-                    <td class="py-2 px-2 text-left font-sans font-bold text-white truncate max-w-[110px]">${match.home_team}</td>
+                    <td class="py-2 px-2 text-left font-sans font-bold text-frost truncate max-w-[110px]">${match.home_team}</td>
                     <td class="py-2 px-1.5 ${cellCls(hTot, aTot)}">${hTot}</td>
                     ${sets.map(s => `<td class="py-2 px-1.5 ${cellCls(s.h, s.a)}">${s.h}${s.tb && s.tb[0] !== undefined ? `<sup class="text-[8px] text-blue-400 ml-0.5">${s.tb[0]}</sup>` : ''}</td>`).join('')}
                   </tr>
                   <tr>
-                    <td class="py-2 px-2 text-left font-sans font-bold text-white truncate max-w-[110px]">${match.away_team}</td>
+                    <td class="py-2 px-2 text-left font-sans font-bold text-frost truncate max-w-[110px]">${match.away_team}</td>
                     <td class="py-2 px-1.5 ${cellCls(aTot, hTot)}">${aTot}</td>
                     ${sets.map(s => `<td class="py-2 px-1.5 ${cellCls(s.a, s.h)}">${s.a}${s.tb && s.tb[1] !== undefined ? `<sup class="text-[8px] text-blue-400 ml-0.5">${s.tb[1]}</sup>` : ''}</td>`).join('')}
                   </tr>
@@ -1078,31 +1093,31 @@
         const hE = pb.e ? pb.e[0] : '-', aE = pb.e ? pb.e[1] : '-';
 
         html += `
-          <div class="bg-[#0f1219] border border-[#232836] rounded-xl overflow-hidden">
-            <div class="bg-[#161b26] px-3 py-1.5 border-b border-[#232836] text-[10px] font-bold text-gray-300 uppercase">⚾ Bảng điểm Inning & R-H-E</div>
+          <div class="bg-[#0A1B30] border border-[#22406A] rounded-xl overflow-hidden">
+            <div class="bg-[#163152] px-3 py-1.5 border-b border-[#22406A] text-[10px] font-bold text-frost/90 uppercase">⚾ Bảng điểm Inning & R-H-E</div>
             <div class="overflow-x-auto">
-              <table class="w-full text-center text-[10px] font-mono">
-                <thead class="bg-[#12151e] text-gray-400 border-b border-[#232836]">
+              <table class="w-full text-center text-[10px] font-score">
+                <thead class="bg-[#10253F] text-mist border-b border-[#22406A]">
                   <tr>
                     <th class="py-1.5 px-2 text-left font-sans">Đội</th>
                     ${inns.map(n => `<th class="py-1.5 px-1">${n.idx}</th>`).join('')}
-                    <th class="py-1.5 px-1.5 text-[#f59e0b] font-bold border-l border-[#232836]">R</th>
+                    <th class="py-1.5 px-1.5 text-[#FFB020] font-bold border-l border-[#22406A]">R</th>
                     <th class="py-1.5 px-1.5 text-blue-400">H</th>
                     <th class="py-1.5 px-1.5 text-red-400">E</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-[#1f2433]">
+                <tbody class="divide-y divide-[#22406A]">
                   <tr>
-                    <td class="py-2 px-2 text-left font-sans font-bold text-white truncate max-w-[85px]">${match.home_team}</td>
-                    ${inns.map(n => `<td class="py-2 px-1 text-gray-300">${n.h}</td>`).join('')}
-                    <td class="py-2 px-1.5 font-black text-[#f59e0b] border-l border-[#232836]">${hR}</td>
+                    <td class="py-2 px-2 text-left font-sans font-bold text-frost truncate max-w-[85px]">${match.home_team}</td>
+                    ${inns.map(n => `<td class="py-2 px-1 text-frost/90">${n.h}</td>`).join('')}
+                    <td class="py-2 px-1.5 font-black text-[#FFB020] border-l border-[#22406A]">${hR}</td>
                     <td class="py-2 px-1.5 text-blue-300">${hH}</td>
                     <td class="py-2 px-1.5 text-red-300">${hE}</td>
                   </tr>
                   <tr>
-                    <td class="py-2 px-2 text-left font-sans font-bold text-white truncate max-w-[85px]">${match.away_team}</td>
-                    ${inns.map(n => `<td class="py-2 px-1 text-gray-300">${n.a}</td>`).join('')}
-                    <td class="py-2 px-1.5 font-black text-[#f59e0b] border-l border-[#232836]">${aR}</td>
+                    <td class="py-2 px-2 text-left font-sans font-bold text-frost truncate max-w-[85px]">${match.away_team}</td>
+                    ${inns.map(n => `<td class="py-2 px-1 text-frost/90">${n.a}</td>`).join('')}
+                    <td class="py-2 px-1.5 font-black text-[#FFB020] border-l border-[#22406A]">${aR}</td>
                     <td class="py-2 px-1.5 text-blue-300">${aH}</td>
                     <td class="py-2 px-1.5 text-red-300">${aE}</td>
                   </tr>
@@ -1116,24 +1131,24 @@
         const extra = scores?.extra_scores || {};
         const innings = extra.innings || [];
         html += `
-          <div class="bg-[#0f1219] border border-[#232836] rounded-xl p-3 space-y-2">
-            <div class="text-[10px] font-bold text-[#f59e0b] uppercase">🏏 Bảng Điểm Lượt Đánh (Innings Scorecard)</div>
+          <div class="bg-[#0A1B30] border border-[#22406A] rounded-xl p-3 space-y-2">
+            <div class="text-[10px] font-bold text-[#FFB020] uppercase">🏏 Bảng Điểm Lượt Đánh (Innings Scorecard)</div>
             ${innings.length > 0 ? innings.map((inn, idx) => {
               const sideName = (inn[0] === 1) ? match.home_team : match.away_team;
               const runs = inn[1] ?? 0, overs = inn[2] ?? 0, wkts = inn[3] ?? 0;
               return `
-                <div class="flex items-center justify-between bg-[#161b26] border border-[#232836] rounded-lg px-3 py-2 text-xs">
+                <div class="flex items-center justify-between bg-[#163152] border border-[#22406A] rounded-lg px-3 py-2 text-xs">
                   <div>
-                    <div class="font-bold text-white">${sideName}</div>
-                    <div class="text-[10px] text-gray-400">Lượt đánh #${idx + 1}</div>
+                    <div class="font-bold text-frost">${sideName}</div>
+                    <div class="text-[10px] text-mist">Lượt đánh #${idx + 1}</div>
                   </div>
-                  <div class="text-right font-mono">
-                    <div class="text-sm font-black text-[#f59e0b]">${runs}/${wkts}</div>
-                    <div class="text-[10px] text-gray-400">(${overs} Overs)</div>
+                  <div class="text-right font-score">
+                    <div class="text-sm font-black text-[#FFB020]">${runs}/${wkts}</div>
+                    <div class="text-[10px] text-mist">(${overs} Overs)</div>
                   </div>
                 </div>
               `;
-            }).join('') : `<div class="text-xs text-gray-400">Tổng điểm: <b>${match.home_score ?? '-'} - ${match.away_score ?? '-'}</b></div>`}
+            }).join('') : `<div class="text-xs text-mist">Tổng điểm: <b>${match.home_score ?? '-'} - ${match.away_score ?? '-'}</b></div>`}
           </div>
         `;
       } else if (match.sport_key === 'american_football' || match.sport_key === 'ice_hockey') {
@@ -1149,26 +1164,26 @@
         if (pb.ot && Array.isArray(pb.ot)) periods.push({ label: 'OT', h: pb.ot[0], a: pb.ot[1] });
         const hTot = (pb.ft && pb.ft[0] !== undefined) ? pb.ft[0] : (match.home_score ?? '-');
         const aTot = (pb.ft && pb.ft[1] !== undefined) ? pb.ft[1] : (match.away_score ?? '-');
-        const cellCls = (v1, v2) => (Number(v1) > Number(v2)) ? 'text-[#f59e0b] font-black' : 'text-gray-200';
+        const cellCls = (v1, v2) => (Number(v1) > Number(v2)) ? 'text-[#FFB020] font-black' : 'text-frost';
 
         html += `
-          <div class="bg-[#0f1219] border border-[#232836] rounded-xl overflow-hidden">
-            <table class="w-full text-center text-[11px] font-mono">
-              <thead class="bg-[#161b26] text-gray-400 border-b border-[#232836]">
+          <div class="bg-[#0A1B30] border border-[#22406A] rounded-xl overflow-hidden">
+            <table class="w-full text-center text-[11px] font-score">
+              <thead class="bg-[#163152] text-mist border-b border-[#22406A]">
                 <tr>
                   <th class="py-1.5 px-2 text-left font-sans">Đội</th>
-                  <th class="py-1.5 px-1.5 text-white">Tổng</th>
+                  <th class="py-1.5 px-1.5 text-frost">Tổng</th>
                   ${periods.map(p => `<th class="py-1.5 px-1.5">${p.label}</th>`).join('')}
                 </tr>
               </thead>
-              <tbody class="divide-y divide-[#1f2433]">
+              <tbody class="divide-y divide-[#22406A]">
                 <tr>
-                  <td class="py-2 px-2 text-left font-sans font-bold text-white truncate max-w-[100px]">${match.home_team}</td>
+                  <td class="py-2 px-2 text-left font-sans font-bold text-frost truncate max-w-[100px]">${match.home_team}</td>
                   <td class="py-2 px-1.5 ${cellCls(hTot, aTot)}">${hTot}</td>
                   ${periods.map(p => `<td class="py-2 px-1.5 ${cellCls(p.h, p.a)}">${p.h}</td>`).join('')}
                 </tr>
                 <tr>
-                  <td class="py-2 px-2 text-left font-sans font-bold text-white truncate max-w-[100px]">${match.away_team}</td>
+                  <td class="py-2 px-2 text-left font-sans font-bold text-frost truncate max-w-[100px]">${match.away_team}</td>
                   <td class="py-2 px-1.5 ${cellCls(aTot, hTot)}">${aTot}</td>
                   ${periods.map(p => `<td class="py-2 px-1.5 ${cellCls(p.a, p.h)}">${p.a}</td>`).join('')}
                 </tr>
@@ -1182,33 +1197,33 @@
         const p1h = hb.period1 ?? '-', p1a = ab.period1 ?? '-';
         const p2h = hb.period2 ?? '-', p2a = ab.period2 ?? '-';
         html += `
-          <div class="bg-[#0f1219] border border-[#232836] rounded-lg p-2.5 flex justify-around text-center">
-            <div><div class="text-[10px] text-gray-500">Hiệp 1</div><div class="font-bold text-white">${p1h} - ${p1a}</div></div>
-            <div><div class="text-[10px] text-gray-500">Hiệp 2</div><div class="font-bold text-white">${p2h} - ${p2a}</div></div>
-            <div><div class="text-[10px] text-gray-500">Trạng thái</div><div class="font-bold text-[#f59e0b]">${match.state_category}</div></div>
+          <div class="bg-[#0A1B30] border border-[#22406A] rounded-lg p-2.5 flex justify-around text-center">
+            <div><div class="text-[10px] text-mist">Hiệp 1</div><div class="font-bold text-frost">${p1h} - ${p1a}</div></div>
+            <div><div class="text-[10px] text-mist">Hiệp 2</div><div class="font-bold text-frost">${p2h} - ${p2a}</div></div>
+            <div><div class="text-[10px] text-mist">Trạng thái</div><div class="font-bold text-[#FFB020]">${match.state_category}</div></div>
           </div>
         `;
       }
 
       // 3. Real Chronological Timeline Events / Cricket Over-by-Over / AM Football Scoring Plays
       if (match.sport_key === 'cricket' && cricketInnings && cricketInnings.length > 0) {
-        html += `<div class="text-[11px] font-bold text-[#f59e0b] uppercase tracking-wide pt-1">🏏 Diễn biến từng Over (Ball-by-Ball)</div>`;
+        html += `<div class="text-[11px] font-bold text-[#FFB020] uppercase tracking-wide pt-1">🏏 Diễn biến từng Over (Ball-by-Ball)</div>`;
         cricketInnings.forEach(inn => {
           const overs = (inn.overs || []).slice(0, 8);
           html += `
-            <div class="bg-[#0f1219] border border-[#232836] rounded-xl p-2.5 space-y-2">
-              <div class="text-[11px] font-bold text-white border-b border-[#232836] pb-1">Lượt ${inn.inning}: ${inn.team?.name || ''}</div>
+            <div class="bg-[#0A1B30] border border-[#22406A] rounded-xl p-2.5 space-y-2">
+              <div class="text-[11px] font-bold text-frost border-b border-[#22406A] pb-1">Lượt ${inn.inning}: ${inn.team?.name || ''}</div>
               <div class="space-y-1.5">
                 ${overs.map(ov => `
-                  <div class="bg-[#161b26] rounded-lg px-2.5 py-1.5 space-y-1">
-                    <div class="flex justify-between text-[10px] text-gray-400">
-                      <span><b class="text-white">Over ${ov.over_number}</b> ${ov.batter?.name ? '• ' + ov.batter.name : ''}</span>
-                      <span class="text-[#f59e0b] font-bold">${ov.runs ?? ov.total_run ?? 0} runs${ov.wickets ? ` • ${ov.wickets}W` : ''}</span>
+                  <div class="bg-[#163152] rounded-lg px-2.5 py-1.5 space-y-1">
+                    <div class="flex justify-between text-[10px] text-mist">
+                      <span><b class="text-frost">Over ${ov.over_number}</b> ${ov.batter?.name ? '• ' + ov.batter.name : ''}</span>
+                      <span class="text-[#FFB020] font-bold">${ov.runs ?? ov.total_run ?? 0} runs${ov.wickets ? ` • ${ov.wickets}W` : ''}</span>
                     </div>
                     <div class="flex flex-wrap gap-1">
                       ${(ov.balls || []).map(b => {
                         const d = String(b.display ?? b.score ?? '0');
-                        const bg = d === 'W' ? 'bg-red-600 text-white' : (d === '6' ? 'bg-[#f59e0b] text-black' : (d === '4' ? 'bg-blue-600 text-white' : 'bg-[#0f1219] text-gray-300 border border-[#2a3040]'));
+                        const bg = d === 'W' ? 'bg-red-600 text-frost' : (d === '6' ? 'bg-[#FFB020] text-black' : (d === '4' ? 'bg-blue-600 text-frost' : 'bg-[#0A1B30] text-frost/90 border border-[#22406A]'));
                         return `<span class="w-5 h-5 rounded-full inline-flex items-center justify-center text-[9px] font-bold ${bg}">${d}</span>`;
                       }).join('')}
                     </div>
@@ -1221,20 +1236,20 @@
       } else if (match.sport_key === 'american_football' && events && events.length > 0) {
         const amPeriodMap = { 1: 'Hết Hiệp 1 (Q1)', 2: 'Hết Hiệp 2 (HT)', 3: 'Hết Hiệp 3 (Q3)', 4: 'Hết Hiệp 4 (Q4)', 100: 'Kết Thúc Trận Đấu (FT)' };
         const amPlayMap = { 1: '🏈 Touchdown (+6đ)', 2: '✅ Extra Point (+1đ)', 7: '🛡️ Safety (+2đ)', 8: '🥅 Field Goal (+3đ)', 9: '🔥 2PT Conversion (+2đ)' };
-        html += `<div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide pt-1">Diễn biến ghi điểm (${events.length})</div>`;
+        html += `<div class="text-[11px] font-bold text-mist uppercase tracking-wide pt-1">Diễn biến ghi điểm (${events.length})</div>`;
         html += '<div class="space-y-1.5">' + events.map(e => {
           if (e.type === 1) {
-            return `<div class="text-center text-[10px] font-bold text-[#f59e0b] bg-[#1a1f2e] py-1 rounded">${amPeriodMap[e.extra] || 'Mốc hiệp đấu'}</div>`;
+            return `<div class="text-center text-[10px] font-bold text-[#FFB020] bg-[#163152] py-1 rounded">${amPeriodMap[e.extra] || 'Mốc hiệp đấu'}</div>`;
           }
           const mins = e.second ? Math.floor(e.second / 60) + "'" : '';
           const playLabel = amPlayMap[e.extra] || 'Ghi điểm';
           const isAway = (e.position === 2);
-          const scoreTag = (e.homeScore !== undefined && e.awayScore !== undefined) ? `<span class="text-[10px] font-mono font-bold text-white bg-[#1a1f2e] px-1.5 py-0.5 rounded">${e.homeScore}-${e.awayScore}</span>` : '';
+          const scoreTag = (e.homeScore !== undefined && e.awayScore !== undefined) ? `<span class="text-[10px] font-score font-bold text-frost bg-[#163152] px-1.5 py-0.5 rounded">${e.homeScore}-${e.awayScore}</span>` : '';
           return `
-            <div class="flex items-center justify-between gap-2 bg-[#0f1219] border border-[#232836] rounded-lg px-2.5 py-1.5 ${isAway ? 'flex-row-reverse text-right' : ''}">
+            <div class="flex items-center justify-between gap-2 bg-[#0A1B30] border border-[#22406A] rounded-lg px-2.5 py-1.5 ${isAway ? 'flex-row-reverse text-right' : ''}">
               <div class="flex items-center gap-2">
-                <span class="text-[10px] font-mono text-[#f59e0b] font-bold">${mins}</span>
-                <span class="text-[11px] text-white font-semibold">${playLabel}</span>
+                <span class="text-[10px] font-score text-[#FFB020] font-bold">${mins}</span>
+                <span class="text-[11px] text-frost font-semibold">${playLabel}</span>
               </div>
               ${scoreTag}
             </div>
@@ -1242,10 +1257,10 @@
         }).join('') + '</div>';
       } else if (!events || events.length === 0) {
         if (match.sport_key === 'football') {
-          html += `<div class="text-center py-6 text-gray-500">Chưa có diễn biến bàn thắng, thẻ phạt hay thay người.</div>`;
+          html += `<div class="text-center py-6 text-mist">Chưa có diễn biến bàn thắng, thẻ phạt hay thay người.</div>`;
         }
       } else {
-        html += `<div class="text-[11px] font-bold text-gray-400 uppercase tracking-wide pt-1">Diễn biến trận đấu (${events.length})</div>`;
+        html += `<div class="text-[11px] font-bold text-mist uppercase tracking-wide pt-1">Diễn biến trận đấu (${events.length})</div>`;
         html += '<div class="space-y-1.5">' + events.map(e => {
           const itype = String(e.incidentType || e.type || '').toLowerCase();
           const iclass = String(e.incidentClass || e.card_type || '').toLowerCase();
@@ -1258,28 +1273,28 @@
             icon = (match.sport_key === 'basketball') ? '🏀' : '⚽';
             const pName = e.player?.name || e.scorer || 'Ghi điểm';
             const aName = e.assistPlayer?.name || e.assist1?.name || e.assist || '';
-            const ptsBadge = (match.sport_key === 'basketball' && e.incidentScore) ? `<span class="text-[#f59e0b] font-black">+${e.incidentScore}đ</span> ` : '';
-            label = `${ptsBadge}<b class="text-white">${pName}</b>` + (aName ? ` <span class="text-gray-400">(KT: ${aName})</span>` : '');
+            const ptsBadge = (match.sport_key === 'basketball' && e.incidentScore) ? `<span class="text-[#FFB020] font-black">+${e.incidentScore}đ</span> ` : '';
+            label = `${ptsBadge}<b class="text-frost">${pName}</b>` + (aName ? ` <span class="text-mist">(KT: ${aName})</span>` : '');
           } else if (itype === 'card' || iclass.includes('yellow') || iclass.includes('red')) {
             icon = iclass.includes('red') ? '🟥' : '🟨';
-            label = `<span class="text-gray-200">${e.player?.name || e.scorer || 'Thẻ phạt'}</span>`;
+            label = `<span class="text-frost">${e.player?.name || e.scorer || 'Thẻ phạt'}</span>`;
           } else if (itype === 'substitution') {
             icon = '🔄';
             const pin = e.playerIn?.name || e.player_in || '';
             const pout = e.playerOut?.name || e.player_out || '';
             label = `<span class="text-emerald-400">▲ ${pin}</span> <span class="text-red-400">▼ ${pout}</span>`;
           } else if (itype === 'period') {
-            return `<div class="text-center text-[10px] font-bold text-[#f59e0b] bg-[#1a1f2e] py-1 rounded">${e.text || 'Hết hiệp'} ${e.homeScore !== undefined ? `(${e.homeScore} - ${e.awayScore})` : ''}</div>`;
+            return `<div class="text-center text-[10px] font-bold text-[#FFB020] bg-[#163152] py-1 rounded">${e.text || 'Hết hiệp'} ${e.homeScore !== undefined ? `(${e.homeScore} - ${e.awayScore})` : ''}</div>`;
           }
 
           const scoreTag = (e.homeScore !== undefined && e.awayScore !== undefined)
-            ? `<span class="text-[10px] font-mono font-bold text-white bg-[#1a1f2e] px-1.5 py-0.5 rounded">${e.homeScore}-${e.awayScore}</span>`
+            ? `<span class="text-[10px] font-score font-bold text-frost bg-[#163152] px-1.5 py-0.5 rounded">${e.homeScore}-${e.awayScore}</span>`
             : '';
 
           return `
-            <div class="flex items-center justify-between gap-2 bg-[#0f1219] border border-[#232836] rounded-lg px-2.5 py-1.5 ${isHome === false ? 'flex-row-reverse text-right' : ''}">
+            <div class="flex items-center justify-between gap-2 bg-[#0A1B30] border border-[#22406A] rounded-lg px-2.5 py-1.5 ${isHome === false ? 'flex-row-reverse text-right' : ''}">
               <div class="flex items-center gap-2 min-w-0 ${isHome === false ? 'flex-row-reverse' : ''}">
-                <span class="text-[11px] font-mono font-bold text-[#f59e0b] shrink-0">${min ? min + "'" : ''}</span>
+                <span class="text-[11px] font-score font-bold text-[#FFB020] shrink-0">${min ? min + "'" : ''}</span>
                 <span class="shrink-0">${icon}</span>
                 <div class="text-[11px] truncate">${label}</div>
               </div>
@@ -1297,7 +1312,7 @@
       const items = extractAllStatItems(stats);
 
       if (items.length === 0) {
-        box.innerHTML = `<div class="text-center py-8 text-gray-500">Chưa có dữ liệu thống kê chi tiết cho trận này.</div>`;
+        box.innerHTML = `<div class="text-center py-8 text-mist">Chưa có dữ liệu thống kê chi tiết cho trận này.</div>`;
         return;
       }
 
@@ -1311,12 +1326,12 @@
           <div class="space-y-1">
             <div class="flex justify-between text-[11px]">
               <span class="font-bold text-blue-400">${it.home ?? hv}</span>
-              <span class="text-gray-300">${formatStatName(it.fields || it.name)}</span>
-              <span class="font-bold text-[#f59e0b]">${it.away ?? av}</span>
+              <span class="text-frost/90">${formatStatName(it.fields || it.name)}</span>
+              <span class="font-bold text-[#FFB020]">${it.away ?? av}</span>
             </div>
-            <div class="flex h-1.5 rounded-full overflow-hidden bg-[#1e2330]">
+            <div class="flex h-1.5 rounded-full overflow-hidden bg-[#163152]">
               <div class="bg-blue-500" style="width:${hp}%"></div>
-              <div class="bg-[#f59e0b]" style="width:${ap}%"></div>
+              <div class="bg-[#FFB020]" style="width:${ap}%"></div>
             </div>
           </div>
         `;
@@ -1332,7 +1347,7 @@
       const awayList = squad.away || [];
 
       if (homeList.length === 0 && awayList.length === 0) {
-        box.innerHTML = `<div class="text-center py-8 text-gray-500">${match.sport_key === 'basketball' ? 'Chưa có bảng Box Score cầu thủ.' : 'Chưa có đội hình ra sân chính thức.'}</div>`;
+        box.innerHTML = `<div class="text-center py-8 text-mist">${match.sport_key === 'basketball' ? 'Chưa có bảng Box Score cầu thủ.' : 'Chưa có đội hình ra sân chính thức.'}</div>`;
         return;
       }
 
@@ -1341,14 +1356,14 @@
         const renderBoxScore = (arr, title) => {
           const sorted = [...arr].sort((a, b) => ((b.stats?.points ?? b.stats?.score ?? 0) - (a.stats?.points ?? a.stats?.score ?? 0)));
           return `
-            <div class="bg-[#0f1219] border border-[#232836] rounded-lg overflow-hidden">
-              <div class="bg-[#161b26] px-3 py-2 border-b border-[#232836] font-bold text-white text-xs">${title}</div>
+            <div class="bg-[#0A1B30] border border-[#22406A] rounded-lg overflow-hidden">
+              <div class="bg-[#163152] px-3 py-2 border-b border-[#22406A] font-bold text-frost text-xs">${title}</div>
               <div class="overflow-x-auto">
                 <table class="w-full text-[10px] text-center">
-                  <thead class="text-gray-400 border-b border-[#232836] bg-[#12151e]">
+                  <thead class="text-mist border-b border-[#22406A] bg-[#10253F]">
                     <tr>
                       <th class="py-1.5 px-2 text-left">Cầu thủ</th>
-                      <th class="py-1.5 px-1 text-[#f59e0b]">PTS</th>
+                      <th class="py-1.5 px-1 text-[#FFB020]">PTS</th>
                       <th class="py-1.5 px-1">MIN</th>
                       <th class="py-1.5 px-1">REB</th>
                       <th class="py-1.5 px-1">AST</th>
@@ -1358,7 +1373,7 @@
                       <th class="py-1.5 px-1">BLK</th>
                     </tr>
                   </thead>
-                  <tbody class="divide-y divide-[#1c202c] font-mono">
+                  <tbody class="divide-y divide-[#163152] font-score">
                     ${sorted.map(p => {
                       const s = p.stats || {};
                       const pts = s.points ?? s.score ?? ((s.hits || 0) * 2 + (s.threePointsMades || 0) + (s.throwsMades || 0));
@@ -1368,21 +1383,21 @@
                       const fg = (s.hits !== undefined && s.shots !== undefined) ? `${s.hits}-${s.shots}` : '-';
                       const tp = (s.threePointsMades !== undefined && s.threePointsShots !== undefined) ? `${s.threePointsMades}-${s.threePointsShots}` : '-';
                       return `
-                        <tr class="hover:bg-[#1a1f2e]">
+                        <tr class="hover:bg-[#163152]">
                           <td class="py-1.5 px-2 text-left font-sans">
                             <div class="flex items-center gap-1.5 min-w-[100px]">
-                              <span class="text-blue-400 font-mono text-[9px] w-4">${p.shirt_number || ''}</span>
-                              <span class="text-white font-medium truncate max-w-[95px]">${p.short_name || p.name}</span>
+                              <span class="text-blue-400 font-score text-[9px] w-4">${p.shirt_number || ''}</span>
+                              <span class="text-frost font-medium truncate max-w-[95px]">${p.short_name || p.name}</span>
                             </div>
                           </td>
-                          <td class="py-1.5 px-1 font-black text-[#f59e0b]">${pts}</td>
-                          <td class="py-1.5 px-1 text-gray-400">${min}</td>
-                          <td class="py-1.5 px-1 text-gray-200">${reb}</td>
-                          <td class="py-1.5 px-1 text-gray-200">${ast}</td>
-                          <td class="py-1.5 px-1 text-gray-300">${fg}</td>
-                          <td class="py-1.5 px-1 text-gray-300">${tp}</td>
-                          <td class="py-1.5 px-1 text-gray-400">${s.steals ?? 0}</td>
-                          <td class="py-1.5 px-1 text-gray-400">${s.blocks ?? 0}</td>
+                          <td class="py-1.5 px-1 font-black text-[#FFB020]">${pts}</td>
+                          <td class="py-1.5 px-1 text-mist">${min}</td>
+                          <td class="py-1.5 px-1 text-frost">${reb}</td>
+                          <td class="py-1.5 px-1 text-frost">${ast}</td>
+                          <td class="py-1.5 px-1 text-frost/90">${fg}</td>
+                          <td class="py-1.5 px-1 text-frost/90">${tp}</td>
+                          <td class="py-1.5 px-1 text-mist">${s.steals ?? 0}</td>
+                          <td class="py-1.5 px-1 text-mist">${s.blocks ?? 0}</td>
                         </tr>
                       `;
                     }).join('')}
@@ -1400,32 +1415,32 @@
         const starters = arr.filter(p => !p.is_substitute);
         const subs = arr.filter(p => p.is_substitute);
         const renderRow = p => `
-          <div class="flex justify-between items-center text-[11px] py-1 border-b border-[#1c202c]/60 last:border-0">
+          <div class="flex justify-between items-center text-[11px] py-1 border-b border-[#163152]/60 last:border-0">
             <div class="flex items-center gap-2 min-w-0">
-              <span class="w-5 text-center font-mono text-blue-400 font-bold shrink-0">${p.shirt_number || '-'}</span>
-              ${p.avatar ? `<img src="${p.avatar}" class="w-5 h-5 rounded-full object-cover bg-[#161b22] shrink-0" onerror="this.style.display='none'">` : ''}
-              <span class="text-gray-200 truncate">${p.name || ''}</span>
+              <span class="w-5 text-center font-score text-blue-400 font-bold shrink-0">${p.shirt_number || '-'}</span>
+              ${p.avatar ? `<img src="${p.avatar}" class="w-5 h-5 rounded-full object-cover bg-[#163152] shrink-0" onerror="this.style.display='none'">` : ''}
+              <span class="text-frost truncate">${p.name || ''}</span>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               ${p.market_value ? `<span class="text-[9px] text-emerald-400">${p.market_value}</span>` : ''}
-              <span class="text-[10px] text-gray-400 font-mono bg-[#181c28] px-1 rounded">${p.position || ''}</span>
+              <span class="text-[10px] text-mist font-score bg-[#163152] px-1 rounded">${p.position || ''}</span>
             </div>
           </div>
         `;
 
         return `
-          <div class="bg-[#0f1219] border border-[#232836] rounded-lg p-2.5 space-y-2">
-            <div class="flex justify-between items-center pb-1.5 border-b border-[#232836]">
-              <span class="font-bold text-white">${title}</span>
-              <span class="text-[10px] text-[#f59e0b] font-mono bg-[#1c2130] px-2 py-0.5 rounded">${form || ''}</span>
+          <div class="bg-[#0A1B30] border border-[#22406A] rounded-lg p-2.5 space-y-2">
+            <div class="flex justify-between items-center pb-1.5 border-b border-[#22406A]">
+              <span class="font-bold text-frost">${title}</span>
+              <span class="text-[10px] text-[#FFB020] font-score bg-[#163152] px-2 py-0.5 rounded">${form || ''}</span>
             </div>
             <div>
-              <div class="text-[10px] font-bold text-gray-400 uppercase mb-1">Đá chính (${starters.length})</div>
+              <div class="text-[10px] font-bold text-mist uppercase mb-1">Đá chính (${starters.length})</div>
               ${starters.map(renderRow).join('')}
             </div>
             ${subs.length ? `
               <div class="pt-1">
-                <div class="text-[10px] font-bold text-gray-500 uppercase mb-1">Dự bị (${subs.length})</div>
+                <div class="text-[10px] font-bold text-mist uppercase mb-1">Dự bị (${subs.length})</div>
                 ${subs.map(renderRow).join('')}
               </div>
             ` : ''}
@@ -1440,36 +1455,36 @@
     function renderRightStandings(rows, homeId, awayId) {
       const box = document.getElementById('rpTab-standings');
       if (!rows || rows.length === 0) {
-        box.innerHTML = `<div class="text-center py-8 text-gray-500">Chưa có bảng xếp hạng cho giải đấu này.</div>`;
+        box.innerHTML = `<div class="text-center py-8 text-mist">Chưa có bảng xếp hạng cho giải đấu này.</div>`;
         return;
       }
 
       box.innerHTML = `
         <table class="w-full text-left text-[11px]">
-          <thead class="text-gray-400 border-b border-[#232836]">
+          <thead class="text-mist border-b border-[#22406A]">
             <tr>
               <th class="py-1.5 px-1">#</th>
               <th class="py-1.5 px-1">Đội</th>
               <th class="py-1.5 px-1 text-center">Tr</th>
               <th class="py-1.5 px-1 text-center">HS</th>
-              <th class="py-1.5 px-1 text-center font-bold text-white">Đ</th>
+              <th class="py-1.5 px-1 text-center font-bold text-frost">Đ</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#1f2433]">
+          <tbody class="divide-y divide-[#22406A]">
             ${rows.map(r => {
-              const highlight = (r.team_id === homeId || r.team_id === awayId) ? 'bg-[#1f2638] text-[#f59e0b]' : '';
+              const highlight = (r.team_id === homeId || r.team_id === awayId) ? 'bg-[#163152] text-[#FFB020]' : '';
               return `
                 <tr class="${highlight}">
                   <td class="py-1.5 px-1 font-bold">${r.position}</td>
                   <td class="py-1.5 px-1">
                     <div class="flex items-center gap-1.5">
                       <img src="${r.team_logo}" class="w-4 h-4 object-contain" onerror="this.style.display='none'">
-                      <span class="truncate max-w-[150px] text-white">${r.team_name}</span>
+                      <span class="truncate max-w-[150px] text-frost">${r.team_name}</span>
                     </div>
                   </td>
-                  <td class="py-1.5 px-1 text-center text-gray-300">${r.matches}</td>
-                  <td class="py-1.5 px-1 text-center text-gray-300">${r.diff > 0 ? '+' + r.diff : r.diff}</td>
-                  <td class="py-1.5 px-1 text-center font-black text-[#f59e0b]">${r.points}</td>
+                  <td class="py-1.5 px-1 text-center text-frost/90">${r.matches}</td>
+                  <td class="py-1.5 px-1 text-center text-frost/90">${r.diff > 0 ? '+' + r.diff : r.diff}</td>
+                  <td class="py-1.5 px-1 text-center font-black text-[#FFB020]">${r.points}</td>
                 </tr>
               `;
             }).join('')}
@@ -1500,13 +1515,13 @@
 
       let html = `
         <div class="flex items-center gap-2 mb-2">
-          <button onclick="setCommentaryFilter('all')" class="px-3 py-1 rounded-full text-[11px] font-bold ${commentaryFilter === 'all' ? 'bg-[#f59e0b] text-black' : 'bg-[#1b1f2c] text-gray-300'}">Tất cả (${(events || []).length})</button>
-          <button onclick="setCommentaryFilter('highlights')" class="px-3 py-1 rounded-full text-[11px] font-bold ${commentaryFilter === 'highlights' ? 'bg-[#f59e0b] text-black' : 'bg-[#1b1f2c] text-gray-300'}">Điểm nhấn</button>
+          <button onclick="setCommentaryFilter('all')" class="px-3 py-1 rounded-full text-[11px] font-bold ${commentaryFilter === 'all' ? 'bg-[#FFB020] text-black' : 'bg-[#163152] text-frost/90'}">Tất cả (${(events || []).length})</button>
+          <button onclick="setCommentaryFilter('highlights')" class="px-3 py-1 rounded-full text-[11px] font-bold ${commentaryFilter === 'highlights' ? 'bg-[#FFB020] text-black' : 'bg-[#163152] text-frost/90'}">Điểm nhấn</button>
         </div>
       `;
 
       if (list.length === 0) {
-        html += `<div class="text-center py-8 text-gray-500">Chưa có diễn biến tường thuật trực tiếp cho trận đấu này.</div>`;
+        html += `<div class="text-center py-8 text-mist">Chưa có diễn biến tường thuật trực tiếp cho trận đấu này.</div>`;
         box.innerHTML = html;
         return;
       }
@@ -1526,7 +1541,7 @@
             const pts = e.incidentScore || 2;
             const pName = e.player?.name || 'Cầu thủ';
             const aName = e.assistPlayer?.name ? ` (Kiến tạo: ${e.assistPlayer.name})` : '';
-            badge = `<span class="text-[#f59e0b] font-bold uppercase text-[10px]">🏀 GHI +${pts} ĐIỂM</span>`;
+            badge = `<span class="text-[#FFB020] font-bold uppercase text-[10px]">🏀 GHI +${pts} ĐIỂM</span>`;
             narrative = `<b>${pName}</b> (${teamName}) ghi ${pts} điểm${aName}. Tỷ số: <b>${e.homeScore} - ${e.awayScore}</b>.`;
           } else {
             const pName = e.player?.name || e.scorer || 'Cầu thủ';
@@ -1542,19 +1557,19 @@
           badge = `<span class="text-blue-400 font-bold uppercase text-[10px]">🔄 THAY NGƯỜI</span>`;
           narrative = `<div><span class="text-emerald-400 font-semibold">▲ Vào sân:</span> ${e.playerIn?.name || ''}</div><div><span class="text-red-400 font-semibold">▼ Rời sân:</span> ${e.playerOut?.name || ''}</div>`;
         } else if (itype === 'period') {
-          return `<div class="text-center text-[11px] font-bold text-emerald-400 bg-[#151c24] border border-emerald-800/40 py-1.5 rounded-lg">${e.text || 'KẾT THÚC HIỆP'} ${e.homeScore !== undefined ? `(${e.homeScore} - ${e.awayScore})` : ''}</div>`;
+          return `<div class="text-center text-[11px] font-bold text-emerald-400 bg-[#163152] border border-emerald-800/40 py-1.5 rounded-lg">${e.text || 'KẾT THÚC HIỆP'} ${e.homeScore !== undefined ? `(${e.homeScore} - ${e.awayScore})` : ''}</div>`;
         }
 
         return `
-          <div class="bg-[#0f1219] border border-[#232836] rounded-lg p-2.5 space-y-1">
+          <div class="bg-[#0A1B30] border border-[#22406A] rounded-lg p-2.5 space-y-1">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="font-mono font-black text-[#f59e0b] text-[11px]">${clock}</span>
+                <span class="font-score font-black text-[#FFB020] text-[11px]">${clock}</span>
                 ${badge}
               </div>
               ${teamLogo ? `<img src="${teamLogo}" class="w-4 h-4 object-contain" onerror="this.style.display='none'">` : ''}
             </div>
-            <div class="text-[11px] text-gray-200 leading-relaxed">${narrative}</div>
+            <div class="text-[11px] text-frost leading-relaxed">${narrative}</div>
           </div>
         `;
       }).join('') + '</div>';
@@ -1582,21 +1597,21 @@
         const dp = Math.round((dr / tot) * 100);
         const ap = Math.max(0, 100 - hp - dp);
         box.innerHTML = `
-          <div class="bg-[#0f1219] border border-[#232836] rounded-xl p-3.5 space-y-3">
+          <div class="bg-[#0A1B30] border border-[#22406A] rounded-xl p-3.5 space-y-3">
             <div class="flex items-center justify-between text-xs">
               <img src="${match.home_logo || ''}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">
-              <span class="font-bold text-white">Tổng đối đầu (${hw + aw + dr} trận)</span>
+              <span class="font-bold text-frost">Tổng đối đầu (${hw + aw + dr} trận)</span>
               <img src="${match.away_logo || ''}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">
             </div>
-            <div class="flex h-3 rounded-full overflow-hidden bg-[#1e2330]">
+            <div class="flex h-3 rounded-full overflow-hidden bg-[#163152]">
               <div class="bg-blue-500" style="width:${hp}%"></div>
               ${dr > 0 ? `<div class="bg-gray-500" style="width:${dp}%"></div>` : ''}
-              <div class="bg-[#f59e0b]" style="width:${ap}%"></div>
+              <div class="bg-[#FFB020]" style="width:${ap}%"></div>
             </div>
             <div class="flex justify-between text-[11px] font-bold">
               <span class="text-blue-400">${match.home_team}: ${hw} Thắng (${hp}%)</span>
-              ${dr > 0 ? `<span class="text-gray-400">${dr} Hòa</span>` : ''}
-              <span class="text-[#f59e0b]">${match.away_team}: ${aw} Thắng (${ap}%)</span>
+              ${dr > 0 ? `<span class="text-mist">${dr} Hòa</span>` : ''}
+              <span class="text-[#FFB020]">${match.away_team}: ${aw} Thắng (${ap}%)</span>
             </div>
           </div>
         `;
@@ -1604,7 +1619,7 @@
       }
 
       if (allEvents.length === 0) {
-        box.innerHTML = `<div class="text-center py-8 text-gray-500">Chưa có lịch sử đối đầu (H2H) giữa 2 đội này.</div>`;
+        box.innerHTML = `<div class="text-center py-8 text-mist">Chưa có lịch sử đối đầu (H2H) giữa 2 đội này.</div>`;
         return;
       }
 
@@ -1634,21 +1649,21 @@
         const ap = Math.max(0, 100 - hp - dp);
 
         document.getElementById('h2hDynamicBody').innerHTML = `
-          <div class="bg-[#0f1219] border border-[#232836] rounded-xl p-3 space-y-2.5">
+          <div class="bg-[#0A1B30] border border-[#22406A] rounded-xl p-3 space-y-2.5">
             <div class="flex items-center justify-between text-[11px]">
               <img src="${match.home_logo || ''}" class="w-5 h-5 object-contain" onerror="this.style.display='none'">
-              <span class="font-bold text-white">Tổng số trận (${filtered.length})</span>
+              <span class="font-bold text-frost">Tổng số trận (${filtered.length})</span>
               <img src="${match.away_logo || ''}" class="w-5 h-5 object-contain" onerror="this.style.display='none'">
             </div>
-            <div class="flex h-2.5 rounded-full overflow-hidden bg-[#1e2330]">
+            <div class="flex h-2.5 rounded-full overflow-hidden bg-[#163152]">
               <div class="bg-blue-500" style="width:${hp}%"></div>
               ${!isBkb ? `<div class="bg-gray-500" style="width:${dp}%"></div>` : ''}
-              <div class="bg-[#f59e0b]" style="width:${ap}%"></div>
+              <div class="bg-[#FFB020]" style="width:${ap}%"></div>
             </div>
             <div class="flex justify-between text-[10px] font-semibold">
               <div class="text-blue-400">${homeWins} Thắng (${hp}%)</div>
-              ${!isBkb ? `<div class="text-gray-400">${draws} Hòa (${dp}%)</div>` : ''}
-              <div class="text-[#f59e0b]">${awayWins} Thắng (${ap}%)</div>
+              ${!isBkb ? `<div class="text-mist">${draws} Hòa (${dp}%)</div>` : ''}
+              <div class="text-[#FFB020]">${awayWins} Thắng (${ap}%)</div>
             </div>
           </div>
 
@@ -1658,22 +1673,22 @@
               const hWin = Number(e.home_score) > Number(e.away_score);
               const aWin = Number(e.away_score) > Number(e.home_score);
               return `
-                <div class="bg-[#0f1219] border border-[#232836] rounded-lg px-2.5 py-2 space-y-1">
-                  <div class="flex justify-between text-[9px] text-gray-500">
+                <div class="bg-[#0A1B30] border border-[#22406A] rounded-lg px-2.5 py-2 space-y-1">
+                  <div class="flex justify-between text-[9px] text-mist">
                     <span class="truncate max-w-[200px]">${e.tournament_name}</span>
                     <span>${dt}</span>
                   </div>
                   <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-[11px]">
                     <div class="flex items-center justify-end gap-1.5 min-w-0">
-                      <span class="truncate ${hWin ? 'text-white font-bold' : 'text-gray-400'}">${e.home_name}</span>
+                      <span class="truncate ${hWin ? 'text-frost font-bold' : 'text-mist'}">${e.home_name}</span>
                       <img src="${e.home_logo}" class="w-4 h-4 object-contain shrink-0" onerror="this.style.display='none'">
                     </div>
-                    <div class="px-2 py-0.5 rounded bg-[#161b26] font-mono font-black text-center min-w-[46px]">
-                      <span class="${hWin ? 'text-[#f59e0b]' : 'text-gray-300'}">${e.home_score}</span> - <span class="${aWin ? 'text-[#f59e0b]' : 'text-gray-300'}">${e.away_score}</span>
+                    <div class="px-2 py-0.5 rounded bg-[#163152] font-score font-black text-center min-w-[46px]">
+                      <span class="${hWin ? 'text-[#FFB020]' : 'text-frost/90'}">${e.home_score}</span> - <span class="${aWin ? 'text-[#FFB020]' : 'text-frost/90'}">${e.away_score}</span>
                     </div>
                     <div class="flex items-center justify-start gap-1.5 min-w-0">
                       <img src="${e.away_logo}" class="w-4 h-4 object-contain shrink-0" onerror="this.style.display='none'">
-                      <span class="truncate ${aWin ? 'text-white font-bold' : 'text-gray-400'}">${e.away_name}</span>
+                      <span class="truncate ${aWin ? 'text-frost font-bold' : 'text-mist'}">${e.away_name}</span>
                     </div>
                   </div>
                 </div>
@@ -1684,12 +1699,12 @@
       };
 
       box.innerHTML = `
-        <div class="flex items-center gap-4 text-[11px] text-gray-300 pb-1">
+        <div class="flex items-center gap-4 text-[11px] text-frost/90 pb-1">
           <label class="flex items-center gap-1.5 cursor-pointer">
-            <input type="checkbox" id="h2hFilterHome" class="accent-[#f59e0b]"> Sân nhà (${match.home_team})
+            <input type="checkbox" id="h2hFilterHome" class="accent-[#FFB020]"> Sân nhà (${match.home_team})
           </label>
           <label class="flex items-center gap-1.5 cursor-pointer">
-            <input type="checkbox" id="h2hFilterComp" class="accent-[#f59e0b]"> Cùng giải đấu
+            <input type="checkbox" id="h2hFilterComp" class="accent-[#FFB020]"> Cùng giải đấu
           </label>
         </div>
         <div id="h2hDynamicBody"></div>
@@ -1718,29 +1733,29 @@
 
         if (p1x2) {
           html += `
-            <div class="bg-[#0f1219] border border-[#232836] rounded-xl p-3 space-y-2.5">
+            <div class="bg-[#0A1B30] border border-[#22406A] rounded-xl p-3 space-y-2.5">
               <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold text-[#f59e0b]">🤖 AI Dự Đoán Kết Quả (1X2)</span>
-                <span class="text-[10px] text-gray-400">Dự đoán tỷ số: <b class="text-white">${p1x2.exact_home ?? '-'} - ${p1x2.exact_away ?? '-'}</b></span>
+                <span class="text-[11px] font-bold text-[#FFB020]">🤖 AI Dự Đoán Kết Quả (1X2)</span>
+                <span class="text-[10px] text-mist">Dự đoán tỷ số: <b class="text-frost">${p1x2.exact_home ?? '-'} - ${p1x2.exact_away ?? '-'}</b></span>
               </div>
               <div class="grid grid-cols-3 gap-2 text-center">
-                <div class="p-2 rounded-lg border ${p1x2.highlighted === 'home' ? 'bg-blue-950/60 border-blue-500 text-white' : 'bg-[#161b26] border-[#232836] text-gray-300'}">
+                <div class="p-2 rounded-lg border ${p1x2.highlighted === 'home' ? 'bg-blue-950/60 border-blue-500 text-frost' : 'bg-[#163152] border-[#22406A] text-frost/90'}">
                   <div class="text-[10px] truncate">${match.home_team}</div>
                   <div class="text-sm font-black mt-0.5">${p1x2.home}</div>
                 </div>
-                <div class="p-2 rounded-lg border ${p1x2.highlighted === 'draw' ? 'bg-gray-800 border-gray-400 text-white' : 'bg-[#161b26] border-[#232836] text-gray-300'}">
+                <div class="p-2 rounded-lg border ${p1x2.highlighted === 'draw' ? 'bg-gray-800 border-gray-400 text-frost' : 'bg-[#163152] border-[#22406A] text-frost/90'}">
                   <div class="text-[10px]">Hòa (X)</div>
                   <div class="text-sm font-black mt-0.5">${p1x2.draw}</div>
                 </div>
-                <div class="p-2 rounded-lg border ${p1x2.highlighted === 'away' ? 'bg-amber-950/60 border-[#f59e0b] text-white' : 'bg-[#161b26] border-[#232836] text-gray-300'}">
+                <div class="p-2 rounded-lg border ${p1x2.highlighted === 'away' ? 'bg-amber-950/60 border-[#FFB020] text-frost' : 'bg-[#163152] border-[#22406A] text-frost/90'}">
                   <div class="text-[10px] truncate">${match.away_team}</div>
                   <div class="text-sm font-black mt-0.5">${p1x2.away}</div>
                 </div>
               </div>
               ${pCor || pCard ? `
                 <div class="grid grid-cols-2 gap-2 pt-1 text-[10px]">
-                  ${pCor ? `<div class="bg-[#161b26] rounded p-2"><div class="text-gray-400">Phạt góc (TB ${pCor.average})</div><div class="font-bold text-white mt-0.5">Tài 9.5: <span class="text-blue-400">${pCor.over_9_5}</span> • Xỉu: <span class="text-emerald-400">${pCor.under_9_5}</span></div></div>` : ''}
-                  ${pCard ? `<div class="bg-[#161b26] rounded p-2"><div class="text-gray-400">Thẻ phạt (TB ${pCard.average})</div><div class="font-bold text-white mt-0.5">Tài 4.5: <span class="text-blue-400">${pCard.over_4_5}</span> • Xỉu: <span class="text-emerald-400">${pCard.under_4_5}</span></div></div>` : ''}
+                  ${pCor ? `<div class="bg-[#163152] rounded p-2"><div class="text-mist">Phạt góc (TB ${pCor.average})</div><div class="font-bold text-frost mt-0.5">Tài 9.5: <span class="text-blue-400">${pCor.over_9_5}</span> • Xỉu: <span class="text-emerald-400">${pCor.under_9_5}</span></div></div>` : ''}
+                  ${pCard ? `<div class="bg-[#163152] rounded p-2"><div class="text-mist">Thẻ phạt (TB ${pCard.average})</div><div class="font-bold text-frost mt-0.5">Tài 4.5: <span class="text-blue-400">${pCard.over_4_5}</span> • Xỉu: <span class="text-emerald-400">${pCard.under_4_5}</span></div></div>` : ''}
                 </div>
               ` : ''}
             </div>
@@ -1751,41 +1766,41 @@
       // 2. Datalytics 6-Card Grid (Football)
       if (an) {
         html += `
-          <div class="bg-[#0f1219] border border-[#232836] rounded-xl p-3 space-y-2.5">
+          <div class="bg-[#0A1B30] border border-[#22406A] rounded-xl p-3 space-y-2.5">
             <div class="flex items-center justify-between text-[11px]">
               <div class="flex items-center gap-1.5">
                 <img src="${match.home_logo || ''}" class="w-5 h-5 object-contain" onerror="this.style.display='none'">
                 <span class="px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 font-bold">PPG ${an.home_ppg ?? '-'}</span>
               </div>
-              <span class="font-bold text-gray-400">PHÂN TÍCH DỮ LIỆU</span>
+              <span class="font-bold text-mist">PHÂN TÍCH DỮ LIỆU</span>
               <div class="flex items-center gap-1.5">
-                <span class="px-1.5 py-0.5 rounded bg-amber-950 text-[#f59e0b] font-bold">PPG ${an.away_ppg ?? '-'}</span>
+                <span class="px-1.5 py-0.5 rounded bg-amber-950 text-[#FFB020] font-bold">PPG ${an.away_ppg ?? '-'}</span>
                 <img src="${match.away_logo || ''}" class="w-5 h-5 object-contain" onerror="this.style.display='none'">
               </div>
             </div>
             <div class="grid grid-cols-3 gap-2 text-center">
-              <div class="bg-[#161b26] border border-[#232836] rounded-lg p-2">
-                <div class="text-[10px] text-gray-400">Tài 2.5</div>
+              <div class="bg-[#163152] border border-[#22406A] rounded-lg p-2">
+                <div class="text-[10px] text-mist">Tài 2.5</div>
                 <div class="text-sm font-black text-emerald-400">${an.o25_potential ?? '-'}%</div>
               </div>
-              <div class="bg-[#161b26] border border-[#232836] rounded-lg p-2">
-                <div class="text-[10px] text-gray-400">Tài 1.5</div>
+              <div class="bg-[#163152] border border-[#22406A] rounded-lg p-2">
+                <div class="text-[10px] text-mist">Tài 1.5</div>
                 <div class="text-sm font-black text-blue-400">${an.o15_potential ?? '-'}%</div>
               </div>
-              <div class="bg-[#161b26] border border-[#232836] rounded-lg p-2">
-                <div class="text-[10px] text-gray-400">BTTS (2 đội ghi bàn)</div>
-                <div class="text-sm font-black text-[#f59e0b]">${an.btts_potential ?? '-'}%</div>
+              <div class="bg-[#163152] border border-[#22406A] rounded-lg p-2">
+                <div class="text-[10px] text-mist">BTTS (2 đội ghi bàn)</div>
+                <div class="text-sm font-black text-[#FFB020]">${an.btts_potential ?? '-'}%</div>
               </div>
-              <div class="bg-[#161b26] border border-[#232836] rounded-lg p-2">
-                <div class="text-[10px] text-gray-400">Bàn / Trận TB</div>
-                <div class="text-sm font-black text-white">${an.avg_potential ?? '-'}</div>
+              <div class="bg-[#163152] border border-[#22406A] rounded-lg p-2">
+                <div class="text-[10px] text-mist">Bàn / Trận TB</div>
+                <div class="text-sm font-black text-frost">${an.avg_potential ?? '-'}</div>
               </div>
-              <div class="bg-[#161b26] border border-[#232836] rounded-lg p-2">
-                <div class="text-[10px] text-gray-400">Phạt góc TB</div>
-                <div class="text-sm font-black text-white">${an.corners_potential ?? '-'}</div>
+              <div class="bg-[#163152] border border-[#22406A] rounded-lg p-2">
+                <div class="text-[10px] text-mist">Phạt góc TB</div>
+                <div class="text-sm font-black text-frost">${an.corners_potential ?? '-'}</div>
               </div>
-              <div class="bg-[#161b26] border border-[#232836] rounded-lg p-2">
-                <div class="text-[10px] text-gray-400">Thẻ phạt TB</div>
+              <div class="bg-[#163152] border border-[#22406A] rounded-lg p-2">
+                <div class="text-[10px] text-mist">Thẻ phạt TB</div>
                 <div class="text-sm font-black text-yellow-400">${an.cards_potential ?? '-'}</div>
               </div>
             </div>
@@ -1806,20 +1821,20 @@
           });
           const n = finishedH2h.length;
           html += `
-            <div class="bg-[#0f1219] border border-[#232836] rounded-xl p-3 space-y-2.5">
-              <div class="text-[11px] font-bold text-[#f59e0b]">🏀 Phân Tích Điểm Số Đối Đầu (${n} trận)</div>
+            <div class="bg-[#0A1B30] border border-[#22406A] rounded-xl p-3 space-y-2.5">
+              <div class="text-[11px] font-bold text-[#FFB020]">🏀 Phân Tích Điểm Số Đối Đầu (${n} trận)</div>
               <div class="grid grid-cols-3 gap-2 text-center">
-                <div class="bg-[#161b26] border border-[#232836] rounded-lg p-2">
-                  <div class="text-[10px] text-gray-400 truncate">${match.home_team} TB</div>
+                <div class="bg-[#163152] border border-[#22406A] rounded-lg p-2">
+                  <div class="text-[10px] text-mist truncate">${match.home_team} TB</div>
                   <div class="text-sm font-black text-blue-400">${(hPts / n).toFixed(1)}</div>
                 </div>
-                <div class="bg-[#161b26] border border-[#232836] rounded-lg p-2">
-                  <div class="text-[10px] text-gray-400">Tổng điểm TB</div>
+                <div class="bg-[#163152] border border-[#22406A] rounded-lg p-2">
+                  <div class="text-[10px] text-mist">Tổng điểm TB</div>
                   <div class="text-sm font-black text-emerald-400">${(totPts / n).toFixed(1)}</div>
                 </div>
-                <div class="bg-[#161b26] border border-[#232836] rounded-lg p-2">
-                  <div class="text-[10px] text-gray-400 truncate">${match.away_team} TB</div>
-                  <div class="text-sm font-black text-[#f59e0b]">${(aPts / n).toFixed(1)}</div>
+                <div class="bg-[#163152] border border-[#22406A] rounded-lg p-2">
+                  <div class="text-[10px] text-mist truncate">${match.away_team} TB</div>
+                  <div class="text-sm font-black text-[#FFB020]">${(aPts / n).toFixed(1)}</div>
                 </div>
               </div>
             </div>
@@ -1828,7 +1843,7 @@
       }
 
       if (!html) {
-        html = `<div class="text-center py-8 text-gray-500">Chưa có dữ liệu phân tích AI chuyên sâu cho trận đấu này.</div>`;
+        html = `<div class="text-center py-8 text-mist">Chưa có dữ liệu phân tích AI chuyên sâu cho trận đấu này.</div>`;
       }
       box.innerHTML = html;
     }
@@ -1841,7 +1856,7 @@
       if (!box) return;
       const rounds = bracket?.rounds || (Array.isArray(bracket) ? bracket : []);
       if (!rounds || rounds.length === 0) {
-        box.innerHTML = `<div class="text-center py-8 text-gray-500">Giải đấu hoặc vòng đấu này thi đấu theo thể thức tính điểm (chưa có Nhánh đấu loại trực tiếp).</div>`;
+        box.innerHTML = `<div class="text-center py-8 text-mist">Giải đấu hoặc vòng đấu này thi đấu theo thể thức tính điểm (chưa có Nhánh đấu loại trực tiếp).</div>`;
         return;
       }
 
@@ -1849,7 +1864,7 @@
         <div class="flex gap-3 overflow-x-auto pb-2">
           ${rounds.map(r => `
             <div class="min-w-[200px] shrink-0 space-y-2">
-              <div class="text-[10px] font-bold uppercase text-[#f59e0b] bg-[#161b26] px-2.5 py-1.5 rounded border border-[#232836] text-center">
+              <div class="text-[10px] font-bold uppercase text-[#FFB020] bg-[#163152] px-2.5 py-1.5 rounded border border-[#22406A] text-center">
                 ${r.description || r.name || 'Vòng loại trực tiếp'}
               </div>
               <div class="space-y-2">
@@ -1857,14 +1872,14 @@
                   const p1 = b.participants?.[0] || {};
                   const p2 = b.participants?.[1] || {};
                   return `
-                    <div class="bg-[#0f1219] border border-[#232836] rounded-lg p-2 space-y-1 text-[11px]">
+                    <div class="bg-[#0A1B30] border border-[#22406A] rounded-lg p-2 space-y-1 text-[11px]">
                       <div class="flex justify-between items-center">
-                        <span class="${p1.winner ? 'text-white font-bold' : 'text-gray-400'} truncate">${p1.team?.name || 'TBD'}</span>
-                        <span class="font-mono font-bold ${p1.winner ? 'text-[#f59e0b]' : 'text-gray-400'}">${b.homeTeamScore ?? '-'}</span>
+                        <span class="${p1.winner ? 'text-frost font-bold' : 'text-mist'} truncate">${p1.team?.name || 'TBD'}</span>
+                        <span class="font-score font-bold ${p1.winner ? 'text-[#FFB020]' : 'text-mist'}">${b.homeTeamScore ?? '-'}</span>
                       </div>
                       <div class="flex justify-between items-center">
-                        <span class="${p2.winner ? 'text-white font-bold' : 'text-gray-400'} truncate">${p2.team?.name || 'TBD'}</span>
-                        <span class="font-mono font-bold ${p2.winner ? 'text-[#f59e0b]' : 'text-gray-400'}">${b.awayTeamScore ?? '-'}</span>
+                        <span class="${p2.winner ? 'text-frost font-bold' : 'text-mist'} truncate">${p2.team?.name || 'TBD'}</span>
+                        <span class="font-score font-bold ${p2.winner ? 'text-[#FFB020]' : 'text-mist'}">${b.awayTeamScore ?? '-'}</span>
                       </div>
                     </div>
                   `;
@@ -1897,7 +1912,9 @@
 
     // Initialize Right Panel on page load
     if (currentRightMatch) {
+      window.__initialLoad = true;
       selectMatchForRightPanel(currentRightMatch, document.getElementById('match-row-' + currentRightMatch.id));
+      window.__initialLoad = false;
     }
 
     // -------------------------------------------------------------------------
@@ -1964,8 +1981,8 @@
           if (scoreCell && newScoreStr && scoreCell.innerText.trim() !== newScoreStr) {
             scoreCell.innerText = newScoreStr;
             // Goal flash highlight!
-            scoreCell.classList.add('bg-emerald-600', 'text-white');
-            setTimeout(() => scoreCell.classList.remove('bg-emerald-600', 'text-white'), 3500);
+            scoreCell.classList.add('bg-emerald-600', 'text-frost');
+            setTimeout(() => scoreCell.classList.remove('bg-emerald-600', 'text-frost'), 3500);
           }
 
           if (lm.readtime) {

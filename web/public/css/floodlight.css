@@ -1,0 +1,181 @@
+/* =====================================================================
+   FLOODLIGHT — UniScore design system
+   Night-stadium navy chrome around a floodlit (cool white) match field.
+   Amber is reserved for "live" and the current selection only.
+   ===================================================================== */
+
+:root {
+  --night: #0A1B30;     /* page background, stadium at night */
+  --stand: #10253F;     /* raised navy panels */
+  --stand-2: #163152;   /* hover / inset on navy */
+  --seat: #22406A;      /* borders on navy */
+  --mist: #8EA3BF;      /* secondary text on navy */
+  --frost: #E8EEF6;     /* primary text on navy */
+
+  --flood: #F3F6FA;     /* floodlit surface */
+  --flood-2: #E6ECF3;   /* group headers / hover on light */
+  --chalk: #D3DCE7;     /* lines on light */
+  --ink: #0C1A2C;       /* text on light */
+  --ink-2: #4A5D75;     /* secondary text on light */
+
+  --amber: #FFB020;     /* live + selection */
+  --amber-ink: #8A5A00; /* amber text on light surfaces (AA) */
+  --goal: #2FBF71;      /* positive / win */
+  --alert: #E5484D;     /* red card / error */
+
+  --font-body: 'Be Vietnam Pro', system-ui, sans-serif;
+  --font-score: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif;
+
+  --r-sm: 4px;   /* chips, inputs */
+  --r-md: 8px;   /* panels */
+  --r-lg: 14px;  /* hero scoreboard only */
+}
+
+html { color-scheme: dark; }
+body.fl {
+  background: var(--night);
+  color: var(--frost);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Type ---------- */
+.fl-score, .font-score {
+  font-family: var(--font-score);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.fl-display {
+  font-family: var(--font-score);
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  line-height: 1.05;
+}
+.fl-num { font-variant-numeric: tabular-nums; }
+
+/* ---------- Focus & motion ---------- */
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* ---------- Live indicator: the only ambient motion ---------- */
+.fl-live-dot {
+  display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 0 0 rgba(255, 176, 32, .6);
+  animation: fl-beacon 1.8s ease-out infinite;
+}
+@keyframes fl-beacon {
+  0% { box-shadow: 0 0 0 0 rgba(255, 176, 32, .55); }
+  70% { box-shadow: 0 0 0 7px rgba(255, 176, 32, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 176, 32, 0); }
+}
+
+/* ---------- Surfaces ---------- */
+.fl-panel { background: var(--stand); border: 1px solid var(--seat); border-radius: var(--r-md); }
+.fl-field { background: var(--flood); color: var(--ink); border-radius: var(--r-md); }
+.fl-field .fl-muted { color: var(--ink-2); }
+.fl-muted { color: var(--mist); }
+
+/* ---------- Controls ---------- */
+.fl-input {
+  background: var(--night); color: var(--frost);
+  border: 1px solid var(--seat); border-radius: var(--r-sm);
+  padding: 7px 10px; font-size: 13px;
+}
+.fl-input::placeholder { color: #6F86A3; }
+.fl-input:focus { outline: none; border-color: var(--amber); }
+.fl-field .fl-input { background: #fff; color: var(--ink); border-color: var(--chalk); }
+
+.fl-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-weight: 600; font-size: 13px; padding: 7px 14px;
+  border-radius: var(--r-sm); border: 1px solid var(--seat);
+  background: var(--stand-2); color: var(--frost);
+  transition: background-color .15s, border-color .15s;
+  cursor: pointer;
+}
+.fl-btn:hover { border-color: var(--mist); }
+.fl-btn--primary { background: var(--amber); border-color: var(--amber); color: #1A1200; }
+.fl-btn--primary:hover { background: #FFC24D; border-color: #FFC24D; }
+.fl-btn--danger { background: transparent; border-color: rgba(229, 72, 77, .55); color: #FF8A8D; }
+.fl-btn--danger:hover { background: rgba(229, 72, 77, .12); }
+.fl-btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+/* Segmented control (status filters, tabs on navy) */
+.fl-seg { display: inline-flex; background: var(--night); border: 1px solid var(--seat); border-radius: var(--r-sm); padding: 2px; gap: 2px; }
+.fl-seg > a, .fl-seg > button {
+  padding: 5px 12px; font-size: 13px; font-weight: 600; color: var(--mist);
+  border-radius: 3px; white-space: nowrap;
+}
+.fl-seg > a:hover, .fl-seg > button:hover { color: var(--frost); }
+.fl-seg > .is-active { background: var(--frost); color: var(--ink); }
+
+/* Underline tabs (sport bar, detail tabs) */
+.fl-tab { position: relative; color: var(--mist); font-weight: 600; white-space: nowrap; }
+.fl-tab:hover { color: var(--frost); }
+.fl-tab.is-active { color: var(--frost); }
+.fl-tab.is-active::after {
+  content: ''; position: absolute; left: 8px; right: 8px; bottom: 0; height: 3px;
+  background: var(--amber); border-radius: 3px 3px 0 0;
+}
+
+/* ---------- Match rows on the floodlit field ---------- */
+.match-row-active {
+  background: #FFF6E0 !important;
+  box-shadow: inset 3px 0 0 var(--amber);
+}
+
+/* ---------- Tables ---------- */
+.fl-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.fl-table th { text-align: left; font-weight: 600; color: var(--mist); padding: 8px 10px; border-bottom: 1px solid var(--seat); }
+.fl-table td { padding: 8px 10px; border-bottom: 1px solid rgba(34, 64, 106, .55); }
+.fl-table tbody tr:hover { background: var(--stand-2); }
+
+/* ---------- Scrollbars ---------- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--seat); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #2E5487; }
+.fl-field ::-webkit-scrollbar-thumb { background: var(--chalk); }
+
+/* ---------- Native selects ---------- */
+select.fl-input option { background: var(--stand); color: var(--frost); }
+
+/* ---------- Flatpickr re-skin ---------- */
+.flatpickr-calendar { background: var(--stand) !important; border: 1px solid var(--seat) !important; box-shadow: 0 18px 40px rgba(0, 0, 0, .45) !important; font-family: var(--font-body); }
+.flatpickr-calendar .flatpickr-day { color: var(--frost); }
+.flatpickr-calendar .flatpickr-day:hover { background: var(--stand-2); border-color: var(--stand-2); }
+.flatpickr-calendar .flatpickr-day.selected,
+.flatpickr-calendar .flatpickr-day.startRange,
+.flatpickr-calendar .flatpickr-day.endRange { background: var(--amber) !important; border-color: var(--amber) !important; color: #1A1200 !important; }
+.flatpickr-calendar .flatpickr-day.inRange { background: rgba(255, 176, 32, .18) !important; border-color: transparent !important; box-shadow: none !important; }
+.flatpickr-calendar .flatpickr-day.today { border-color: var(--mist); }
+.flatpickr-months .flatpickr-month, .flatpickr-weekdays, span.flatpickr-weekday,
+.flatpickr-current-month .flatpickr-monthDropdown-months { background: var(--stand) !important; color: var(--frost) !important; fill: var(--frost) !important; }
+
+/* ---------- Laravel Pagination on navy panels ---------- */
+nav[aria-label="Pagination Navigation"] a,
+nav[aria-label="Pagination Navigation"] span[aria-disabled="true"] > span,
+nav[aria-label="Pagination Navigation"] span[aria-current="page"] > span {
+  background: var(--night) !important;
+  color: var(--frost) !important;
+  border-color: var(--seat) !important;
+}
+nav[aria-label="Pagination Navigation"] a:hover {
+  background: var(--stand-2) !important;
+  border-color: var(--mist) !important;
+}
+nav[aria-label="Pagination Navigation"] span[aria-current="page"] > span {
+  background: var(--amber) !important;
+  border-color: var(--amber) !important;
+  color: #1A1200 !important;
+  font-weight: 700;
+}
+nav[aria-label="Pagination Navigation"] p {
+  color: var(--mist) !important;
+}

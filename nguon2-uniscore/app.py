@@ -471,348 +471,552 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 # -----------------------------------------------------------------------------
-# MAIN DASHBOARD HTML PAGE (Tailwind CSS Dark Theme)
+# MAIN DASHBOARD HTML PAGE (Floodlight Design System)
 # -----------------------------------------------------------------------------
 @app.get("/", response_class=HTMLResponse)
 def index_view():
     return """<!DOCTYPE html>
-<html lang="vi" class="dark">
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UniScore Scraper Mission Control & Web Dashboard</title>
+  <title>UniScore — Trung tâm điều khiển thu thập dữ liệu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
-            brand: '#3b82f6',
-            darkbg: '#0d1117',
-            darkcard: '#161b22',
-            darkborder: '#30363d',
-            darkhover: '#21262d'
-          }
-        }
-      }
-    }
+            night: '#0A1B30',
+            stand: '#10253F',
+            stand2: '#163152',
+            seat: '#22406A',
+            mist: '#8EA3BF',
+            frost: '#E8EEF6',
+            flood: '#F3F6FA',
+            flood2: '#E6ECF3',
+            chalk: '#D3DCE7',
+            ink: '#0C1A2C',
+            ink2: '#4A5D75',
+            live: '#FFB020',
+            liveink: '#8A5A00',
+            goal: '#2FBF71',
+            alert: '#E5484D',
+          },
+          fontFamily: {
+            body: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
+            score: ['"Barlow Condensed"', '"Be Vietnam Pro"', 'sans-serif'],
+          },
+        },
+      },
+    };
   </script>
   <style>
-    /* Custom Scrollbar */
+    :root {
+      --night: #0A1B30;
+      --stand: #10253F;
+      --stand-2: #163152;
+      --seat: #22406A;
+      --mist: #8EA3BF;
+      --frost: #E8EEF6;
+      --flood: #F3F6FA;
+      --flood-2: #E6ECF3;
+      --chalk: #D3DCE7;
+      --ink: #0C1A2C;
+      --ink-2: #4A5D75;
+      --amber: #FFB020;
+      --amber-ink: #8A5A00;
+      --goal: #2FBF71;
+      --alert: #E5484D;
+      --font-body: 'Be Vietnam Pro', system-ui, sans-serif;
+      --font-score: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif;
+      --r-sm: 4px;
+      --r-md: 8px;
+      --r-lg: 14px;
+    }
+
+    html { color-scheme: dark; }
+    body.fl {
+      background: var(--night);
+      color: var(--frost);
+      font-family: var(--font-body);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .fl-score, .font-score {
+      font-family: var(--font-score);
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .fl-display {
+      font-family: var(--font-score);
+      font-weight: 700;
+      letter-spacing: 0.005em;
+      line-height: 1.05;
+      font-variant-numeric: tabular-nums;
+    }
+    .fl-num { font-variant-numeric: tabular-nums; }
+
+    :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 3px; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+
+    .fl-live-dot {
+      display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 0 0 rgba(255, 176, 32, .6);
+      animation: fl-beacon 1.8s ease-out infinite;
+    }
+    @keyframes fl-beacon {
+      0% { box-shadow: 0 0 0 0 rgba(255, 176, 32, .55); }
+      70% { box-shadow: 0 0 0 7px rgba(255, 176, 32, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 176, 32, 0); }
+    }
+
+    .fl-panel { background: var(--stand); border: 1px solid var(--seat); border-radius: var(--r-md); }
+    .fl-muted { color: var(--mist); }
+
+    .fl-input {
+      background: var(--night); color: var(--frost);
+      border: 1px solid var(--seat); border-radius: var(--r-sm);
+      padding: 7px 10px; font-size: 13px;
+    }
+    .fl-input::placeholder { color: #6F86A3; }
+    .fl-input:focus { outline: none; border-color: var(--amber); }
+    select.fl-input option { background: var(--stand); color: var(--frost); }
+
+    .fl-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      font-weight: 600; font-size: 13px; padding: 7px 14px;
+      border-radius: var(--r-sm); border: 1px solid var(--seat);
+      background: var(--stand-2); color: var(--frost);
+      transition: background-color .15s, border-color .15s;
+      cursor: pointer;
+    }
+    .fl-btn:hover { border-color: var(--mist); }
+    .fl-btn--primary { background: var(--amber); border-color: var(--amber); color: #1A1200; }
+    .fl-btn--primary:hover { background: #FFC24D; border-color: #FFC24D; }
+    .fl-btn--danger { background: transparent; border-color: rgba(229, 72, 77, .55); color: #FF8A8D; }
+    .fl-btn--danger:hover { background: rgba(229, 72, 77, .12); }
+    .fl-btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+    .fl-tab { position: relative; color: var(--mist); font-weight: 600; white-space: nowrap; padding: 10px 14px; font-size: 13px; cursor: pointer; }
+    .fl-tab:hover { color: var(--frost); }
+    .fl-tab.is-active { color: var(--frost); }
+    .fl-tab.is-active::after {
+      content: ''; position: absolute; left: 8px; right: 8px; bottom: 0; height: 3px;
+      background: var(--amber); border-radius: 3px 3px 0 0;
+    }
+
+    .fl-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .fl-table th { text-align: left; font-weight: 600; color: var(--mist); padding: 8px 10px; border-bottom: 1px solid var(--seat); }
+    .fl-table td { padding: 8px 10px; border-bottom: 1px solid rgba(34, 64, 106, .55); }
+    .fl-table tbody tr:hover { background: var(--stand-2); }
+
+    .sport-tile {
+      background: var(--night);
+      border: 1px solid var(--seat);
+      border-radius: var(--r-sm);
+      transition: border-color .15s, background-color .15s;
+      min-height: 68px;
+    }
+    .sport-tile span.text-xs { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sport-tile:hover { background: var(--stand-2); }
+    .sport-tile:has(input:checked) {
+      border-color: rgba(255, 176, 32, .55);
+      background: rgba(255, 176, 32, .06);
+    }
+
+    .terminal-line { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    input[type="checkbox"], input[type="radio"] { accent-color: var(--amber); }
+    input[type="range"] { accent-color: var(--amber); }
+
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #0d1117; }
-    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #484f58; }
-    .terminal-line { font-family: 'JetBrains Mono', 'Courier New', Courier, monospace; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--seat); border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2E5487; }
   </style>
 </head>
-<body class="bg-darkbg text-gray-200 min-h-screen flex flex-col font-sans">
+<body class="fl min-h-screen flex flex-col">
 
-  <!-- TOP NAV -->
-  <header class="bg-darkcard border-b border-darkborder px-6 py-3 flex justify-between items-center sticky top-0 z-50">
-    <div class="flex items-center space-x-3">
-      <span class="text-2xl">⚡</span>
+  <!-- TOP BAR -->
+  <header class="bg-stand border-b border-seat px-4 md:px-6 py-3 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-[4px] bg-stand2 border border-seat flex items-center justify-center">
+        <span class="fl-score text-xl text-live leading-none">U</span>
+      </div>
       <div>
-        <h1 class="text-lg font-bold text-white flex items-center gap-2">
-          UniScore Scraper Mission Control
-          <span class="text-xs bg-blue-900 text-blue-300 px-2 py-0.5 rounded border border-blue-700">v2.0 Full-Stack</span>
-        </h1>
-        <p class="text-xs text-gray-400">Hệ thống điều khiển & giám sát cào dữ liệu 10 môn thể thao</p>
+        <div class="flex items-center gap-2">
+          <h1 class="font-score text-2xl font-bold text-frost tracking-tight leading-none">UniScore</h1>
+          <span class="text-xs px-2 py-0.5 rounded-[4px] bg-stand2 border border-seat text-mist font-medium">Trung tâm điều khiển v2.0</span>
+        </div>
+        <p class="text-xs text-mist mt-0.5">Giám sát và thu thập dữ liệu trực tiếp 10 môn thể thao</p>
       </div>
     </div>
-    <div class="flex items-center gap-4">
-      <div id="connectionStatus" class="flex items-center gap-2 text-xs text-green-400 bg-green-950/40 px-2.5 py-1 rounded border border-green-800">
-        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-        WebSocket Real-time: Đã kết nối
+
+    <div class="flex items-center gap-3">
+      <div id="connectionStatus" class="flex items-center gap-2 text-xs text-frost bg-night px-3 py-1.5 rounded-[4px] border border-seat">
+        <span id="statusBeacon" class="w-2 h-2 rounded-full bg-goal"></span>
+        <span id="connectionText">WebSocket: Đã kết nối</span>
       </div>
-      <button onclick="refreshCookie()" class="text-xs bg-darkhover hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded border border-darkborder flex items-center gap-1.5 transition">
-        <span>🔄</span> Làm mới Cookie/Token
+      <button onclick="refreshCookie()" class="fl-btn text-xs">
+        Làm mới phiên
       </button>
     </div>
   </header>
 
-  <!-- MAIN WRAPPER: SIDEBAR + CONTENT -->
-  <div class="flex-1 flex overflow-hidden">
+  <!-- MAIN WRAPPER: SIDEBAR + CONTROL ROOM -->
+  <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
 
-    <!-- 1. SIDEBAR (Cấu hình Kỹ thuật & Vận hành) -->
-    <aside class="w-80 bg-darkcard border-r border-darkborder flex flex-col p-4 overflow-y-auto space-y-5 text-sm">
+    <!-- 1. SIDEBAR (Cấu hình kỹ thuật & vận hành) -->
+    <aside class="w-full lg:w-80 shrink-0 bg-stand border-b lg:border-b-0 lg:border-r border-seat flex flex-col p-4 md:p-5 overflow-y-auto space-y-5 text-sm">
       <div>
-        <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">⚙️ 1. Chế độ vận hành (Run Mode)</h2>
-        <div class="space-y-1.5">
-          <label class="flex items-center space-x-2 cursor-pointer">
-            <input type="radio" name="run_mode" value="one_time" checked class="text-blue-600 focus:ring-0">
-            <span>Chạy 1 lần (One-time Run)</span>
+        <h2 class="text-sm font-semibold text-frost mb-2.5">Chế độ vận hành</h2>
+        <div class="space-y-2 text-[13px]">
+          <label class="flex items-center gap-2.5 cursor-pointer text-frost">
+            <input type="radio" name="run_mode" value="one_time" checked>
+            <span>Chạy 1 lần</span>
           </label>
-          <label class="flex items-center space-x-2 cursor-pointer">
-            <input type="radio" name="run_mode" value="scheduled" class="text-blue-600 focus:ring-0">
-            <span>Chạy định kỳ (Scheduled Loop)</span>
+          <label class="flex items-center gap-2.5 cursor-pointer text-frost">
+            <input type="radio" name="run_mode" value="scheduled">
+            <span>Chạy định kỳ theo chu kỳ</span>
           </label>
         </div>
-        <div id="loopIntervalBox" class="mt-2 hidden">
-          <label class="text-xs text-gray-400">Chu kỳ lặp (giây):</label>
-          <input type="number" id="loopInterval" value="60" min="10" class="w-full mt-1 bg-darkbg border border-darkborder rounded px-2 py-1 text-xs text-white">
+        <div id="loopIntervalBox" class="mt-3 hidden">
+          <label for="loopInterval" class="text-xs text-mist block mb-1">Chu kỳ lặp (giây)</label>
+          <input type="number" id="loopInterval" value="60" min="10" class="fl-input w-full">
         </div>
       </div>
 
-      <div class="border-t border-darkborder pt-4">
-        <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">🚀 2. Hiệu năng & Chống chặn</h2>
-        <div class="space-y-3">
+      <div class="border-t border-seat pt-4">
+        <h2 class="text-sm font-semibold text-frost mb-3">Hiệu năng và chống chặn</h2>
+        <div class="space-y-3.5">
           <div>
             <div class="flex justify-between text-xs mb-1">
-              <span class="text-gray-400">Số luồng (Workers):</span>
-              <span id="workersVal" class="text-blue-400 font-bold">5 luồng</span>
+              <span class="text-mist">Số luồng xử lý</span>
+              <span id="workersVal" class="fl-score text-base text-live">5 luồng</span>
             </div>
-            <input type="range" id="workers" min="1" max="20" value="5" class="w-full accent-blue-500" oninput="document.getElementById('workersVal').innerText = this.value + ' luồng'">
+            <input type="range" id="workers" min="1" max="20" value="5" class="w-full" oninput="document.getElementById('workersVal').innerText = this.value + ' luồng'">
           </div>
 
           <div>
             <div class="flex justify-between text-xs mb-1">
-              <span class="text-gray-400">Độ trễ request (Delay):</span>
-              <span id="delayVal" class="text-blue-400 font-bold">0.5s</span>
+              <span class="text-mist">Độ trễ giữa các yêu cầu</span>
+              <span id="delayVal" class="fl-score text-base text-live">0.5s</span>
             </div>
-            <input type="range" id="delay" min="0.2" max="5.0" step="0.1" value="0.5" class="w-full accent-blue-500" oninput="document.getElementById('delayVal').innerText = this.value + 's'">
+            <input type="range" id="delay" min="0.2" max="5.0" step="0.1" value="0.5" class="w-full" oninput="document.getElementById('delayVal').innerText = this.value + 's'">
           </div>
 
           <div>
-            <label class="text-xs text-gray-400 block mb-1">Danh sách Proxy (xoay vòng):</label>
-            <textarea id="proxies" rows="2" placeholder="http://user:pass@ip:port (mỗi dòng 1 proxy)" class="w-full bg-darkbg border border-darkborder rounded p-2 text-xs text-white font-mono"></textarea>
+            <label for="proxies" class="text-xs text-mist block mb-1">Danh sách Proxy (xoay vòng)</label>
+            <textarea id="proxies" rows="2" placeholder="http://user:pass@ip:port (mỗi dòng 1 proxy)" class="fl-input w-full text-xs"></textarea>
           </div>
         </div>
       </div>
 
-      <div class="border-t border-darkborder pt-4">
-        <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">💾 3. Cấu hình Lưu trữ (Storage)</h2>
-        <div class="space-y-1.5">
-          <label class="flex items-center space-x-2 cursor-pointer">
-            <input type="radio" name="storage_target" value="local_json" checked class="text-blue-600 focus:ring-0">
+      <div class="border-t border-seat pt-4">
+        <h2 class="text-sm font-semibold text-frost mb-2.5">Cấu hình lưu trữ</h2>
+        <div class="space-y-2 text-[13px]">
+          <label class="flex items-center gap-2.5 cursor-pointer text-frost">
+            <input type="radio" name="storage_target" value="local_json" checked>
             <span>Xuất file JSON cục bộ</span>
           </label>
-          <label class="flex items-center space-x-2 cursor-pointer">
-            <input type="radio" name="storage_target" value="database" class="text-blue-600 focus:ring-0">
-            <span>Đẩy vào Database (SQLite/PostgreSQL)</span>
+          <label class="flex items-center gap-2.5 cursor-pointer text-frost">
+            <input type="radio" name="storage_target" value="database">
+            <span>Lưu vào cơ sở dữ liệu</span>
           </label>
-          <label class="flex items-center space-x-2 cursor-pointer">
-            <input type="radio" name="storage_target" value="both" class="text-blue-600 focus:ring-0">
-            <span>Cả 2 (JSON + Database)</span>
+          <label class="flex items-center gap-2.5 cursor-pointer text-frost">
+            <input type="radio" name="storage_target" value="both">
+            <span>Cả hai (JSON và cơ sở dữ liệu)</span>
           </label>
         </div>
-        <div class="mt-2">
-          <label class="text-xs text-gray-400 block mb-1">Webhook URL (Tùy chọn):</label>
-          <input type="url" id="webhookUrl" placeholder="https://your-domain.com/webhook" class="w-full bg-darkbg border border-darkborder rounded px-2 py-1 text-xs text-white font-mono">
+        <div class="mt-3">
+          <label for="webhookUrl" class="text-xs text-mist block mb-1">Webhook URL (tùy chọn)</label>
+          <input type="url" id="webhookUrl" placeholder="https://your-domain.com/webhook" class="fl-input w-full text-xs">
         </div>
       </div>
     </aside>
 
     <!-- 2. MAIN WORKSPACE -->
-    <main class="flex-1 flex flex-col p-6 overflow-y-auto space-y-6">
+    <main class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto space-y-5">
 
-      <!-- PHẦN TRÊN: CONTROL PANEL (SCOPE & DATA DEPTH) -->
-      <section class="bg-darkcard border border-darkborder rounded-lg p-5">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
-          <!-- Cột 1: Phạm vi dữ liệu (Scope Filters) -->
-          <div>
-            <div class="flex justify-between items-center mb-2">
-              <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
-                <span>🎯</span> Phạm vi Thu thập (Scope Filters)
-              </h3>
-              <button onclick="toggleAllSports()" class="text-xs text-blue-400 hover:underline">Chọn tất cả 10 môn</button>
-            </div>
-
-            <!-- Sports Checkboxes Grid -->
-            <div class="grid grid-cols-2 gap-2 text-xs mb-3 bg-darkbg p-2.5 rounded border border-darkborder" id="sportsContainer">
-              <label class="flex items-center gap-2"><input type="checkbox" name="sports" value="football" checked> ⚽ Football (Bóng đá)</label>
-              <label class="flex items-center gap-2"><input type="checkbox" name="sports" value="basketball" checked> 🏀 Basketball (Bóng rổ)</label>
-              <label class="flex items-center gap-2"><input type="checkbox" name="sports" value="tennis" checked> 🎾 Tennis (Quần vợt)</label>
-              <label class="flex items-center gap-2"><input type="checkbox" name="sports" value="american_football" checked> 🏈 Am. Football (Bóng bầu dục)</label>
-              <label class="flex items-center gap-2"><input type="checkbox" name="sports" value="baseball" checked> ⚾ Baseball (Bóng chày)</label>
-              <label class="flex items-center gap-2"><input type="checkbox" name="sports" value="badminton" checked> 🏸 Badminton (Cầu lông)</label>
-              <label class="flex items-center gap-2"><input type="checkbox" name="sports" value="volleyball" checked> 🏐 Volleyball (Bóng chuyền)</label>
-              <label class="flex items-center gap-2"><input type="checkbox" name="sports" value="cricket" checked> 🏏 Cricket</label>
-              <label class="flex items-center gap-2"><input type="checkbox" name="sports" value="ice_hockey" checked> 🏒 Ice Hockey (Khúc côn cầu)</label>
-              <label class="flex items-center gap-2"><input type="checkbox" name="sports" value="table_tennis" checked> 🏓 Table Tennis (Bóng bàn)</label>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 text-xs mb-3">
-              <div>
-                <label class="text-gray-400 block mb-1">Trạng thái trận đấu:</label>
-                <div class="flex gap-3">
-                  <label class="flex items-center gap-1"><input type="checkbox" name="status" value="Live" checked> Live</label>
-                  <label class="flex items-center gap-1"><input type="checkbox" name="status" value="Upcoming" checked> Sắp đấu</label>
-                  <label class="flex items-center gap-1"><input type="checkbox" name="status" value="Finished" checked> Kết thúc</label>
-                </div>
-              </div>
-              <div>
-                <label class="text-gray-400 block mb-1">Giới hạn số trận/môn:</label>
-                <input type="number" id="limitPerSport" value="5" min="1" max="100" class="w-full bg-darkbg border border-darkborder rounded px-2 py-1 text-white">
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <label class="text-gray-400 block mb-1">Ngày thi đấu:</label>
-                <input type="date" id="targetDate" class="w-full bg-darkbg border border-darkborder rounded px-2 py-1 text-white">
-              </div>
-              <div>
-                <label class="text-gray-400 block mb-1">Lọc tên Giải đấu (Tùy chọn):</label>
-                <input type="text" id="leagueFilter" placeholder="Premier League, NBA, ATP..." class="w-full bg-darkbg border border-darkborder rounded px-2 py-1 text-white">
-              </div>
-            </div>
-          </div>
-
-          <!-- Cột 2: Độ sâu dữ liệu (Data Depth Toggles) -->
-          <div>
-            <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-1.5">
-              <span>🌳</span> Tùy chọn Nhánh Cây Dữ liệu (Target Schema Depth)
-            </h3>
-            <div class="space-y-3 bg-darkbg p-3.5 rounded border border-darkborder text-xs">
-              <label class="flex justify-between items-center cursor-pointer">
-                <div>
-                  <div class="font-semibold text-white">1. Core Scoreboard & Readtime</div>
-                  <div class="text-gray-400">Tỷ số tổng, tỷ số từng hiệp/set, đồng hồ thời gian thực (Bắt buộc)</div>
-                </div>
-                <input type="checkbox" id="toggleScoreboard" checked disabled class="accent-blue-500 w-4 h-4">
-              </label>
-
-              <label class="flex justify-between items-center cursor-pointer border-t border-darkborder pt-2.5">
-                <div>
-                  <div class="font-semibold text-white">2. Live Events & Incidents</div>
-                  <div class="text-gray-400">Bàn thắng, sút hỏng 11m, thẻ phạt, thay người, play-by-play</div>
-                </div>
-                <input type="checkbox" id="toggleEvents" checked class="accent-blue-500 w-4 h-4">
-              </label>
-
-              <label class="flex justify-between items-center cursor-pointer border-t border-darkborder pt-2.5">
-                <div>
-                  <div class="font-semibold text-white">3. Lineups & Squad Roster</div>
-                  <div class="text-gray-400">Đội hình ra sân chính thức, dự bị, vị trí, tổ trọng tài</div>
-                </div>
-                <input type="checkbox" id="toggleLineups" checked class="accent-blue-500 w-4 h-4">
-              </label>
-
-              <label class="flex justify-between items-center cursor-pointer border-t border-darkborder pt-2.5">
-                <div>
-                  <div class="font-semibold text-white">4. Match Statistics & Box Score</div>
-                  <div class="text-gray-400">Kiểm soát bóng, cú sút, lỗi, điểm cá nhân, box score</div>
-                </div>
-                <input type="checkbox" id="toggleStats" checked class="accent-blue-500 w-4 h-4">
-              </label>
-
-              <label class="flex justify-between items-center cursor-pointer border-t border-darkborder pt-2.5">
-                <div>
-                  <div class="font-semibold text-white">5. Standings & H2H Form</div>
-                  <div class="text-gray-400">Bảng xếp hạng giải đấu, lịch sử đối đầu 5 trận gần nhất</div>
-                </div>
-                <input type="checkbox" id="toggleStandings" checked class="accent-blue-500 w-4 h-4">
-              </label>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- PHẦN GIỮA: EXECUTION CONTROL & KPI MONITOR -->
+      <!-- RUN CONTROLS & KPI TELEMETRY -->
       <section class="space-y-4">
-        <!-- Control buttons -->
-        <div class="flex items-center justify-between">
-          <div class="flex gap-3">
-            <button id="btnStart" onclick="startScraper()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2.5 rounded-lg flex items-center gap-2 shadow-lg transition">
-              <span>▶</span> BẮT ĐẦU CÀO (START)
+        <div class="fl-panel p-4 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button id="btnStart" onclick="startScraper()" class="fl-btn fl-btn--primary px-5 py-2">
+              <span>▶</span> Bắt đầu thu thập
             </button>
-            <button id="btnPause" onclick="pauseScraper()" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold px-6 py-2.5 rounded-lg flex items-center gap-2 shadow-lg transition">
-              <span>⏸</span> TẠM DỪNG (PAUSE)
+            <button id="btnPause" onclick="pauseScraper()" class="fl-btn px-4 py-2">
+              <span>⏸</span> Tạm dừng
             </button>
-            <button id="btnStop" onclick="stopScraper()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2.5 rounded-lg flex items-center gap-2 shadow-lg transition">
-              <span>⏹</span> DỪNG KHẨN CẤP (STOP)
+            <button id="btnStop" onclick="stopScraper()" class="fl-btn fl-btn--danger px-4 py-2">
+              <span>⏹</span> Dừng khẩn cấp
             </button>
           </div>
-          <div class="text-xs text-gray-400 text-right">
-            <div>Đang xử lý: <span id="currentSportText" class="text-blue-400 font-semibold">Chưa có</span></div>
-            <div id="currentMatchText" class="text-gray-300 font-mono">-</div>
+
+          <div class="flex items-center gap-3 text-right">
+            <span id="runningBeacon" class="fl-live-dot hidden"></span>
+            <div class="text-xs">
+              <div class="text-mist">Đang xử lý: <span id="currentSportText" class="text-frost font-semibold">Chưa có</span></div>
+              <div id="currentMatchText" class="text-mist truncate max-w-xs">-</div>
+            </div>
           </div>
         </div>
 
         <!-- KPI Metrics Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="bg-darkcard border border-darkborder rounded-lg p-4">
-            <div class="text-xs text-gray-400 mb-1">Trạng thái hệ thống</div>
-            <div id="kpiStatus" class="text-lg font-bold text-gray-300">Đã dừng (Idle)</div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+          <div class="fl-panel p-4">
+            <div class="text-xs text-mist mb-1">Trạng thái hệ thống</div>
+            <div id="kpiStatus" class="font-score text-2xl font-bold text-frost">Đã dừng (Idle)</div>
           </div>
-          <div class="bg-darkcard border border-darkborder rounded-lg p-4">
-            <div class="text-xs text-gray-400 mb-1">Tổng số trận đã quét</div>
-            <div class="text-lg font-bold text-blue-400"><span id="kpiTotalScanned">0</span> <span class="text-xs text-gray-400">(Live: <span id="kpiLiveScanned" class="text-red-400">0</span>)</span></div>
+          <div class="fl-panel p-4">
+            <div class="text-xs text-mist mb-1">Tổng số trận đã quét</div>
+            <div class="flex items-baseline gap-2">
+              <span id="kpiTotalScanned" class="fl-display text-3xl text-frost">0</span>
+              <span class="text-xs text-mist">Live: <span id="kpiLiveScanned" class="fl-score text-sm text-live">0</span></span>
+            </div>
           </div>
-          <div class="bg-darkcard border border-darkborder rounded-lg p-4">
-            <div class="text-xs text-gray-400 mb-1">Tốc độ & Thành công</div>
-            <div class="text-lg font-bold text-green-400"><span id="kpiSuccess">0</span> req <span class="text-xs text-gray-400">(<span id="kpiSpeed">0</span> req/s)</span></div>
+          <div class="fl-panel p-4">
+            <div class="text-xs text-mist mb-1">Tốc độ và thành công</div>
+            <div class="flex items-baseline gap-2">
+              <span id="kpiSuccess" class="fl-display text-3xl text-goal">0</span>
+              <span class="text-xs text-mist">req (<span id="kpiSpeed" class="fl-score text-sm text-frost">0</span> req/s)</span>
+            </div>
           </div>
-          <div class="bg-darkcard border border-darkborder rounded-lg p-4">
-            <div class="text-xs text-gray-400 mb-1">Số lỗi (Errors/Timeout)</div>
-            <div id="kpiErrors" class="text-lg font-bold text-red-400">0</div>
+          <div class="fl-panel p-4">
+            <div class="text-xs text-mist mb-1">Số lỗi ghi nhận</div>
+            <div id="kpiErrors" class="fl-display text-3xl text-alert">0</div>
           </div>
         </div>
 
         <!-- Progress Bar -->
-        <div class="w-full bg-darkbg border border-darkborder rounded-full h-3 overflow-hidden">
-          <div id="progressBar" class="bg-blue-600 h-full transition-all duration-300" style="width: 0%"></div>
+        <div class="w-full bg-stand border border-seat rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="bg-live h-full transition-all duration-300" style="width: 0%"></div>
         </div>
       </section>
 
-      <!-- PHẦN DƯỚI: 3 TABS (CONSOLE, DATA PREVIEW, EXPORT) -->
-      <section class="bg-darkcard border border-darkborder rounded-lg flex-1 flex flex-col overflow-hidden min-h-[420px]">
-        <!-- Tab Headers -->
-        <div class="flex border-b border-darkborder px-4 pt-2 gap-2 bg-darkbg">
-          <button onclick="switchTab('console')" id="tabBtnConsole" class="px-4 py-2 text-xs font-bold border-b-2 border-blue-500 text-blue-400 flex items-center gap-2">
-            <span>💻</span> Live Console (Nhật ký chạy)
+      <!-- SCOPE (10 SPORTS GRID) & DATA DEPTH -->
+      <section class="fl-panel p-5">
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+
+          <!-- 10 Sports Grid & Filters -->
+          <div class="xl:col-span-7">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="text-sm font-semibold text-frost">Phạm vi 10 môn thể thao</h3>
+              <button onclick="toggleAllSports()" class="text-xs text-live hover:underline font-medium">Chọn tất cả 10 môn</button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-xs mb-4" id="sportsContainer">
+              <label class="sport-tile p-2.5 flex flex-col justify-between gap-2 cursor-pointer">
+                <div class="flex items-center justify-between gap-1">
+                  <input type="checkbox" name="sports" value="football" checked>
+                  <span data-sport-count="Bóng đá" class="fl-score text-lg text-frost leading-none">0</span>
+                </div>
+                <span class="font-medium text-frost">⚽ Bóng đá</span>
+              </label>
+              <label class="sport-tile p-2.5 flex flex-col justify-between gap-2 cursor-pointer">
+                <div class="flex items-center justify-between gap-1">
+                  <input type="checkbox" name="sports" value="basketball" checked>
+                  <span data-sport-count="Bóng rổ" class="fl-score text-lg text-frost leading-none">0</span>
+                </div>
+                <span class="font-medium text-frost">🏀 Bóng rổ</span>
+              </label>
+              <label class="sport-tile p-2.5 flex flex-col justify-between gap-2 cursor-pointer">
+                <div class="flex items-center justify-between gap-1">
+                  <input type="checkbox" name="sports" value="tennis" checked>
+                  <span data-sport-count="Quần vợt" class="fl-score text-lg text-frost leading-none">0</span>
+                </div>
+                <span class="font-medium text-frost">🎾 Quần vợt</span>
+              </label>
+              <label class="sport-tile p-2.5 flex flex-col justify-between gap-2 cursor-pointer">
+                <div class="flex items-center justify-between gap-1">
+                  <input type="checkbox" name="sports" value="american_football" checked>
+                  <span data-sport-count="Bóng bầu dục Mỹ" class="fl-score text-lg text-frost leading-none">0</span>
+                </div>
+                <span class="font-medium text-frost">🏈 Bóng bầu dục</span>
+              </label>
+              <label class="sport-tile p-2.5 flex flex-col justify-between gap-2 cursor-pointer">
+                <div class="flex items-center justify-between gap-1">
+                  <input type="checkbox" name="sports" value="baseball" checked>
+                  <span data-sport-count="Bóng chày" class="fl-score text-lg text-frost leading-none">0</span>
+                </div>
+                <span class="font-medium text-frost">⚾ Bóng chày</span>
+              </label>
+              <label class="sport-tile p-2.5 flex flex-col justify-between gap-2 cursor-pointer">
+                <div class="flex items-center justify-between gap-1">
+                  <input type="checkbox" name="sports" value="badminton" checked>
+                  <span data-sport-count="Cầu lông" class="fl-score text-lg text-frost leading-none">0</span>
+                </div>
+                <span class="font-medium text-frost">🏸 Cầu lông</span>
+              </label>
+              <label class="sport-tile p-2.5 flex flex-col justify-between gap-2 cursor-pointer">
+                <div class="flex items-center justify-between gap-1">
+                  <input type="checkbox" name="sports" value="volleyball" checked>
+                  <span data-sport-count="Bóng chuyền" class="fl-score text-lg text-frost leading-none">0</span>
+                </div>
+                <span class="font-medium text-frost">🏐 Bóng chuyền</span>
+              </label>
+              <label class="sport-tile p-2.5 flex flex-col justify-between gap-2 cursor-pointer">
+                <div class="flex items-center justify-between gap-1">
+                  <input type="checkbox" name="sports" value="cricket" checked>
+                  <span data-sport-count="Cricket" class="fl-score text-lg text-frost leading-none">0</span>
+                </div>
+                <span class="font-medium text-frost">🏏 Cricket</span>
+              </label>
+              <label class="sport-tile p-2.5 flex flex-col justify-between gap-2 cursor-pointer">
+                <div class="flex items-center justify-between gap-1">
+                  <input type="checkbox" name="sports" value="ice_hockey" checked>
+                  <span data-sport-count="Khúc côn cầu" class="fl-score text-lg text-frost leading-none">0</span>
+                </div>
+                <span class="font-medium text-frost">🏒 Khúc côn cầu</span>
+              </label>
+              <label class="sport-tile p-2.5 flex flex-col justify-between gap-2 cursor-pointer">
+                <div class="flex items-center justify-between gap-1">
+                  <input type="checkbox" name="sports" value="table_tennis" checked>
+                  <span data-sport-count="Bóng bàn" class="fl-score text-lg text-frost leading-none">0</span>
+                </div>
+                <span class="font-medium text-frost">🏓 Bóng bàn</span>
+              </label>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs mb-3">
+              <div>
+                <label class="text-mist block mb-1.5">Trạng thái trận đấu</label>
+                <div class="flex flex-wrap gap-3 text-frost">
+                  <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="status" value="Live" checked> Live</label>
+                  <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="status" value="Upcoming" checked> Sắp đấu</label>
+                  <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" name="status" value="Finished" checked> Kết thúc</label>
+                </div>
+              </div>
+              <div>
+                <label for="limitPerSport" class="text-mist block mb-1">Giới hạn số trận mỗi môn</label>
+                <input type="number" id="limitPerSport" value="5" min="1" max="100" class="fl-input w-full">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <label for="targetDate" class="text-mist block mb-1">Ngày thi đấu</label>
+                <input type="date" id="targetDate" class="fl-input w-full">
+              </div>
+              <div>
+                <label for="leagueFilter" class="text-mist block mb-1">Lọc tên giải đấu (tùy chọn)</label>
+                <input type="text" id="leagueFilter" placeholder="Premier League, NBA, ATP..." class="fl-input w-full">
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Depth Toggles -->
+          <div class="xl:col-span-5">
+            <h3 class="text-sm font-semibold text-frost mb-3">Độ sâu dữ liệu thu thập</h3>
+            <div class="bg-night border border-seat rounded-[4px] divide-y divide-seat text-xs">
+              <label class="flex justify-between items-center gap-3 p-3 cursor-pointer">
+                <div>
+                  <div class="font-semibold text-frost">Bảng tỷ số và đồng hồ thi đấu</div>
+                  <div class="text-mist">Tỷ số tổng, từng hiệp/set, thời gian thực (bắt buộc)</div>
+                </div>
+                <input type="checkbox" id="toggleScoreboard" checked disabled class="w-4 h-4 shrink-0">
+              </label>
+
+              <label class="flex justify-between items-center gap-3 p-3 cursor-pointer">
+                <div>
+                  <div class="font-semibold text-frost">Diễn biến trực tiếp</div>
+                  <div class="text-mist">Bàn thắng, thẻ phạt, thay người, play-by-play</div>
+                </div>
+                <input type="checkbox" id="toggleEvents" checked class="w-4 h-4 shrink-0">
+              </label>
+
+              <label class="flex justify-between items-center gap-3 p-3 cursor-pointer">
+                <div>
+                  <div class="font-semibold text-frost">Đội hình và trọng tài</div>
+                  <div class="text-mist">Đội hình ra sân chính thức, dự bị, vị trí</div>
+                </div>
+                <input type="checkbox" id="toggleLineups" checked class="w-4 h-4 shrink-0">
+              </label>
+
+              <label class="flex justify-between items-center gap-3 p-3 cursor-pointer">
+                <div>
+                  <div class="font-semibold text-frost">Thống kê trận đấu</div>
+                  <div class="text-mist">Kiểm soát bóng, cú sút, lỗi, box score</div>
+                </div>
+                <input type="checkbox" id="toggleStats" checked class="w-4 h-4 shrink-0">
+              </label>
+
+              <label class="flex justify-between items-center gap-3 p-3 cursor-pointer">
+                <div>
+                  <div class="font-semibold text-frost">Bảng xếp hạng và đối đầu</div>
+                  <div class="text-mist">Thứ hạng giải đấu, lịch sử đối đầu gần nhất</div>
+                </div>
+                <input type="checkbox" id="toggleStandings" checked class="w-4 h-4 shrink-0">
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- CONSOLE, DATA PREVIEW & EXPORT TABS -->
+      <section class="fl-panel flex-1 flex flex-col overflow-hidden min-h-[420px]">
+        <div class="flex border-b border-seat px-4 gap-2 bg-stand2 overflow-x-auto">
+          <button onclick="switchTab('console')" id="tabBtnConsole" class="fl-tab is-active">
+            Nhật ký chạy trực tiếp
           </button>
-          <button onclick="switchTab('preview')" id="tabBtnPreview" class="px-4 py-2 text-xs font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-200 flex items-center gap-2">
-            <span>🌳</span> Data Preview (Cấu trúc cây JSON 4 Tầng)
+          <button onclick="switchTab('preview')" id="tabBtnPreview" class="fl-tab">
+            Xem trước dữ liệu JSON
           </button>
-          <button onclick="switchTab('export')" id="tabBtnExport" class="px-4 py-2 text-xs font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-200 flex items-center gap-2">
-            <span>📥</span> Export & Download (.json, .csv, .xlsx)
+          <button onclick="switchTab('export')" id="tabBtnExport" class="fl-tab">
+            Xuất và tải xuống
           </button>
         </div>
 
         <!-- Tab 1: Live Console -->
-        <div id="tabContentConsole" class="flex-1 p-4 flex flex-col bg-black overflow-hidden">
-          <div class="flex justify-between items-center pb-2 border-b border-gray-800 text-xs text-gray-400">
-            <span>Dòng sự kiện (Real-time WebSocket Console Output):</span>
-            <button onclick="clearConsole()" class="hover:text-red-400 transition">✕ Xóa Log</button>
+        <div id="tabContentConsole" class="flex-1 p-4 flex flex-col bg-[#061120] overflow-hidden">
+          <div class="flex justify-between items-center pb-2 border-b border-seat text-xs text-mist">
+            <span>Luồng sự kiện WebSocket theo thời gian thực</span>
+            <button onclick="clearConsole()" class="hover:text-alert transition cursor-pointer">Xóa nhật ký</button>
           </div>
-          <div id="consoleTerminal" class="flex-1 overflow-y-auto pt-2 space-y-1 text-xs terminal-line"></div>
+          <div id="consoleTerminal" class="flex-1 overflow-y-auto pt-2.5 space-y-1 text-xs terminal-line"></div>
         </div>
 
         <!-- Tab 2: Data Preview -->
         <div id="tabContentPreview" class="flex-1 p-4 hidden flex-col overflow-y-auto space-y-3">
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-gray-400">Xem trước các trận đấu vừa được bóc tách vào cây 4 tầng:</span>
-            <select id="matchSelector" onchange="renderSelectedMatchJson()" class="bg-darkbg border border-darkborder rounded px-3 py-1 text-xs text-white max-w-md">
-              <option value="">-- Chọn trận đấu để xem cây JSON --</option>
+          <div class="flex flex-wrap justify-between items-center gap-2">
+            <span class="text-xs text-mist">Xem trước các trận đấu vừa thu thập theo cấu trúc 4 tầng</span>
+            <select id="matchSelector" onchange="renderSelectedMatchJson()" class="fl-input max-w-md w-full sm:w-auto">
+              <option value="">Chọn trận đấu để xem cây JSON</option>
             </select>
           </div>
-          <pre id="previewJsonCode" class="flex-1 bg-darkbg border border-darkborder rounded p-4 text-xs text-blue-300 font-mono overflow-auto max-h-[400px]">Chưa có dữ liệu. Vui lòng bấm BẮT ĐẦU CÀO để nạp dữ liệu.</pre>
+          <pre id="previewJsonCode" class="flex-1 bg-night border border-seat rounded-[4px] p-4 text-xs text-frost terminal-line overflow-auto max-h-[400px]">Chưa có dữ liệu. Nhấn Bắt đầu thu thập để nạp dữ liệu.</pre>
         </div>
 
         <!-- Tab 3: Export & Download -->
         <div id="tabContentExport" class="flex-1 p-4 hidden flex-col overflow-y-auto space-y-4">
           <div class="flex justify-between items-center">
-            <h4 class="text-sm font-bold text-white">Danh sách tệp dữ liệu đã xuất bản trong output:</h4>
-            <button onclick="loadExportFiles()" class="text-xs bg-darkhover px-3 py-1 rounded border border-darkborder hover:bg-gray-700">🔄 Làm mới danh sách</button>
+            <h4 class="text-sm font-semibold text-frost">Tệp dữ liệu đã xuất trong thư mục output</h4>
+            <button onclick="loadExportFiles()" class="fl-btn text-xs">Làm mới danh sách</button>
           </div>
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs border border-darkborder rounded">
-              <thead class="bg-darkbg text-gray-400 border-b border-darkborder">
+            <table class="fl-table">
+              <thead>
                 <tr>
-                  <th class="p-2.5">Môn</th>
-                  <th class="p-2.5">Tên file</th>
-                  <th class="p-2.5">Dung lượng</th>
-                  <th class="p-2.5">Thời gian cập nhật</th>
-                  <th class="p-2.5 text-right">Tùy chọn Tải xuống</th>
+                  <th>Môn</th>
+                  <th>Tên tệp</th>
+                  <th>Dung lượng</th>
+                  <th>Cập nhật</th>
+                  <th class="text-right">Tải xuống</th>
                 </tr>
               </thead>
-              <tbody id="exportTableBody" class="divide-y divide-darkborder">
-                <tr><td colspan="5" class="p-4 text-center text-gray-500">Đang tải danh sách file...</td></tr>
+              <tbody id="exportTableBody">
+                <tr><td colspan="5" class="p-4 text-center text-mist">Đang tải danh sách tệp...</td></tr>
               </tbody>
             </table>
           </div>
@@ -823,12 +1027,18 @@ def index_view():
   </div>
 
   <script>
-    // State & WS
     let socket = null;
     let previewDataCache = [];
+    const sportCounts = {};
 
-    // Set default date to today
     document.getElementById('targetDate').value = new Date().toISOString().split('T')[0];
+
+    document.querySelectorAll('input[name="run_mode"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        const box = document.getElementById('loopIntervalBox');
+        box.classList.toggle('hidden', radio.value !== 'scheduled' || !radio.checked);
+      });
+    });
 
     function toggleAllSports() {
       const cbs = document.querySelectorAll('#sportsContainer input[type="checkbox"]');
@@ -836,25 +1046,43 @@ def index_view():
       cbs.forEach(c => c.checked = !allChecked);
     }
 
+    function resetSportCounts() {
+      Object.keys(sportCounts).forEach(k => { sportCounts[k] = 0; });
+      document.querySelectorAll('[data-sport-count]').forEach(el => { el.innerText = '0'; });
+    }
+
+    function incrementSportCountFromLog(msg) {
+      const match = msg.match(/^\\[([^\\]]+)\\]/);
+      if (!match) return;
+      const label = match[1].trim();
+      sportCounts[label] = (sportCounts[label] || 0) + 1;
+      document.querySelectorAll('[data-sport-count]').forEach(el => {
+        const key = el.getAttribute('data-sport-count');
+        if (label.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(label.toLowerCase())) {
+          el.innerText = sportCounts[label];
+        }
+      });
+    }
+
     function switchTab(tab) {
       document.getElementById('tabContentConsole').classList.add('hidden');
       document.getElementById('tabContentPreview').classList.add('hidden');
       document.getElementById('tabContentExport').classList.add('hidden');
 
-      document.getElementById('tabBtnConsole').className = "px-4 py-2 text-xs font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-200 flex items-center gap-2";
-      document.getElementById('tabBtnPreview').className = "px-4 py-2 text-xs font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-200 flex items-center gap-2";
-      document.getElementById('tabBtnExport').className = "px-4 py-2 text-xs font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-200 flex items-center gap-2";
+      document.getElementById('tabBtnConsole').className = 'fl-tab';
+      document.getElementById('tabBtnPreview').className = 'fl-tab';
+      document.getElementById('tabBtnExport').className = 'fl-tab';
 
       if (tab === 'console') {
         document.getElementById('tabContentConsole').classList.remove('hidden');
-        document.getElementById('tabBtnConsole').className = "px-4 py-2 text-xs font-bold border-b-2 border-blue-500 text-blue-400 flex items-center gap-2";
+        document.getElementById('tabBtnConsole').className = 'fl-tab is-active';
       } else if (tab === 'preview') {
         document.getElementById('tabContentPreview').classList.remove('hidden');
-        document.getElementById('tabBtnPreview').className = "px-4 py-2 text-xs font-bold border-b-2 border-blue-500 text-blue-400 flex items-center gap-2";
+        document.getElementById('tabBtnPreview').className = 'fl-tab is-active';
         loadPreviewData();
       } else if (tab === 'export') {
         document.getElementById('tabContentExport').classList.remove('hidden');
-        document.getElementById('tabBtnExport').className = "px-4 py-2 text-xs font-bold border-b-2 border-blue-500 text-blue-400 flex items-center gap-2";
+        document.getElementById('tabBtnExport').className = 'fl-tab is-active';
         loadExportFiles();
       }
     }
@@ -865,14 +1093,14 @@ def index_view():
 
       socket.onopen = () => {
         const cs = document.getElementById("connectionStatus");
-        cs.innerHTML = `<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> WebSocket Real-time: Đã kết nối`;
-        cs.className = "flex items-center gap-2 text-xs text-green-400 bg-green-950/40 px-2.5 py-1 rounded border border-green-800";
+        cs.innerHTML = `<span id="statusBeacon" class="w-2 h-2 rounded-full bg-goal"></span><span id="connectionText">WebSocket: Đã kết nối</span>`;
+        cs.className = "flex items-center gap-2 text-xs text-frost bg-night px-3 py-1.5 rounded-[4px] border border-seat";
       };
 
       socket.onclose = () => {
         const cs = document.getElementById("connectionStatus");
-        cs.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span> Mất kết nối WS. Đang thử lại...`;
-        cs.className = "flex items-center gap-2 text-xs text-red-400 bg-red-950/40 px-2.5 py-1 rounded border border-red-800";
+        cs.innerHTML = `<span id="statusBeacon" class="w-2 h-2 rounded-full bg-alert"></span><span id="connectionText">Mất kết nối WS, đang thử lại...</span>`;
+        cs.className = "flex items-center gap-2 text-xs text-alert bg-night px-3 py-1.5 rounded-[4px] border border-alert/50";
         setTimeout(initWebSocket, 2000);
       };
 
@@ -891,26 +1119,42 @@ def index_view():
 
     function appendLog(log) {
       const term = document.getElementById("consoleTerminal");
-      let colorClass = "text-gray-300";
-      if (log.level === "SUCCESS") colorClass = "text-green-400";
-      else if (log.level === "WARNING") colorClass = "text-yellow-400";
-      else if (log.level === "ERROR") colorClass = "text-red-400";
-      else if (log.level === "INFO") colorClass = "text-blue-300";
+      let colorClass = "text-frost";
+      if (log.level === "SUCCESS") {
+        colorClass = "text-goal";
+        incrementSportCountFromLog(log.msg || "");
+      } else if (log.level === "WARNING") colorClass = "text-live";
+      else if (log.level === "ERROR") colorClass = "text-alert";
+      else if (log.level === "INFO") colorClass = "text-mist";
 
       const line = document.createElement("div");
-      line.innerHTML = `<span class="text-gray-500">[${log.time}]</span> <span class="font-bold ${colorClass}">[${log.level}]</span> <span class="text-gray-200">${log.msg}</span>`;
+      line.innerHTML = `<span class="text-mist">[${log.time}]</span> <span class="font-bold ${colorClass}">[${log.level}]</span> <span class="text-frost">${log.msg}</span>`;
       term.appendChild(line);
       term.scrollTop = term.scrollHeight;
     }
 
     function updateKPIUI(kpi) {
-      document.getElementById("kpiStatus").innerText = kpi.status;
+      const statusEl = document.getElementById("kpiStatus");
+      const runningBeacon = document.getElementById("runningBeacon");
+      const statusBeacon = document.getElementById("statusBeacon");
+      statusEl.innerText = kpi.status;
+
+      const isActiveRun = kpi.is_running && !kpi.is_paused;
+      if (runningBeacon) {
+        runningBeacon.classList.toggle("hidden", !isActiveRun);
+      }
+      if (statusBeacon) {
+        statusBeacon.className = isActiveRun ? "fl-live-dot" : "w-2 h-2 rounded-full bg-goal";
+      }
+
       if (kpi.status.includes("Running") || kpi.status.includes("Đang chạy")) {
-        document.getElementById("kpiStatus").className = "text-lg font-bold text-green-400 animate-pulse";
+        statusEl.className = "font-score text-2xl font-bold text-live";
       } else if (kpi.status.includes("Paused") || kpi.status.includes("Tạm dừng")) {
-        document.getElementById("kpiStatus").className = "text-lg font-bold text-yellow-400";
+        statusEl.className = "font-score text-2xl font-bold text-mist";
+      } else if (kpi.status.includes("Done") || kpi.status.includes("Hoàn thành")) {
+        statusEl.className = "font-score text-2xl font-bold text-goal";
       } else {
-        document.getElementById("kpiStatus").className = "text-lg font-bold text-gray-300";
+        statusEl.className = "font-score text-2xl font-bold text-frost";
       }
 
       document.getElementById("kpiTotalScanned").innerText = kpi.total_scanned;
@@ -952,6 +1196,7 @@ def index_view():
         alert("Vui lòng chọn ít nhất 1 môn thể thao!");
         return;
       }
+      resetSportCounts();
       const res = await fetch("/api/control/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -985,8 +1230,8 @@ def index_view():
       previewDataCache = await res.json();
       const sel = document.getElementById("matchSelector");
       if (previewDataCache.length === 0) {
-        sel.innerHTML = "<option value=''>-- Chưa có trận đấu nào được quét --</option>";
-        document.getElementById("previewJsonCode").innerText = "Chưa có dữ liệu preview.";
+        sel.innerHTML = "<option value=''>Chưa có trận đấu nào được quét</option>";
+        document.getElementById("previewJsonCode").innerText = "Chưa có dữ liệu xem trước.";
         return;
       }
 
@@ -1013,25 +1258,24 @@ def index_view():
       const files = await res.json();
       const tbody = document.getElementById("exportTableBody");
       if (files.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">Chưa có file nào trong thư mục output.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-mist">Chưa có tệp nào trong thư mục output.</td></tr>`;
         return;
       }
       tbody.innerHTML = files.map(f => `
-        <tr class="hover:bg-darkbg transition">
-          <td class="p-2.5 font-bold text-blue-400 uppercase">${f.sport}</td>
-          <td class="p-2.5 font-mono text-gray-200">${f.filename}</td>
-          <td class="p-2.5 text-gray-400">${f.size_kb} KB</td>
-          <td class="p-2.5 text-gray-400">${f.modified}</td>
-          <td class="p-2.5 text-right space-x-2">
-            <a href="/api/download/file?path=${encodeURIComponent(f.rel_path)}" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-xs inline-block">JSON</a>
-            <a href="/api/download/export?path=${encodeURIComponent(f.rel_path)}&format=csv" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs inline-block">CSV</a>
-            <a href="/api/download/export?path=${encodeURIComponent(f.rel_path)}&format=xlsx" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded text-xs inline-block">Excel</a>
+        <tr>
+          <td class="font-semibold text-live">${f.sport}</td>
+          <td class="text-frost">${f.filename}</td>
+          <td class="fl-num text-mist">${f.size_kb} KB</td>
+          <td class="fl-num text-mist">${f.modified}</td>
+          <td class="text-right space-x-1.5">
+            <a href="/api/download/file?path=${encodeURIComponent(f.rel_path)}" class="fl-btn text-xs py-1 px-2.5">JSON</a>
+            <a href="/api/download/export?path=${encodeURIComponent(f.rel_path)}&format=csv" class="fl-btn text-xs py-1 px-2.5">CSV</a>
+            <a href="/api/download/export?path=${encodeURIComponent(f.rel_path)}&format=xlsx" class="fl-btn fl-btn--primary text-xs py-1 px-2.5">Excel</a>
           </td>
         </tr>
       `).join("");
     }
 
-    // Init
     initWebSocket();
   </script>
 </body>

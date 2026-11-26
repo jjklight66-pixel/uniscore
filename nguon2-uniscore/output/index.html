@@ -3,112 +3,260 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UniScore Sports API & Target Schema Explorer (10 Môn Thể Thao)</title>
+  <title>UniScore — Trình duyệt dữ liệu 10 môn thể thao</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <style>
     :root {
-      --bg: #0d1117;
-      --card-bg: #161b22;
-      --border: #30363d;
-      --text: #c9d1d9;
-      --text-bright: #f0f6fc;
-      --accent: #58a6ff;
-      --accent-hover: #1f6feb;
-      --green: #238636;
-      --red: #da3633;
-      --yellow: #d29922;
-      --purple: #8957e5;
+      --night: #0A1B30;
+      --stand: #10253F;
+      --stand-2: #163152;
+      --seat: #22406A;
+      --mist: #8EA3BF;
+      --frost: #E8EEF6;
+      --flood: #F3F6FA;
+      --flood-2: #E6ECF3;
+      --chalk: #D3DCE7;
+      --ink: #0C1A2C;
+      --ink-2: #4A5D75;
+      --amber: #FFB020;
+      --amber-ink: #8A5A00;
+      --goal: #2FBF71;
+      --alert: #E5484D;
+      --font-body: 'Be Vietnam Pro', system-ui, sans-serif;
+      --font-score: 'Barlow Condensed', 'Be Vietnam Pro', sans-serif;
+      --r-sm: 4px;
+      --r-md: 8px;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
-    header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-    h1 { font-size: 24px; color: var(--text-bright); display: flex; align-items: center; gap: 10px; }
-    .badge { font-size: 12px; padding: 3px 8px; border-radius: 12px; font-weight: 600; }
-    .badge-live { background: rgba(218, 54, 51, 0.2); color: #f85149; border: 1px solid #f85149; }
-    .badge-upcoming { background: rgba(88, 166, 255, 0.2); color: #58a6ff; border: 1px solid #58a6ff; }
-    .badge-finished { background: rgba(35, 134, 54, 0.2); color: #3fb950; border: 1px solid #3fb950; }
-    .badge-special { background: rgba(210, 153, 34, 0.2); color: #d29922; border: 1px solid #d29922; }
-    
-    .sports-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-    .tab-btn {
-      background: var(--card-bg); border: 1px solid var(--border); color: var(--text);
-      padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;
-      transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { color-scheme: dark; }
+    body {
+      background-color: var(--night);
+      color: var(--frost);
+      font-family: var(--font-body);
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 20px;
+      -webkit-font-smoothing: antialiased;
     }
-    .tab-btn:hover { background: #21262d; border-color: #8b949e; }
-    .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 3px; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
 
-    .control-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .raw-link { color: var(--accent); text-decoration: none; font-size: 14px; }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--seat);
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-family: var(--font-score);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--frost);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      line-height: 1.1;
+    }
+    .subtitle { color: var(--mist); font-size: 13px; margin-top: 4px; }
+
+    .badge {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: var(--r-sm);
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-live { background: rgba(255, 176, 32, 0.16); color: var(--amber-ink); border: 1px solid rgba(255, 176, 32, 0.5); }
+    .badge-upcoming { background: var(--flood-2); color: var(--ink-2); border: 1px solid var(--chalk); }
+    .badge-finished { background: rgba(47, 191, 113, 0.14); color: #166B3D; border: 1px solid rgba(47, 191, 113, 0.45); }
+    .badge-special { background: rgba(229, 72, 77, 0.12); color: #A6262B; border: 1px solid rgba(229, 72, 77, 0.4); }
+
+    .fl-live-dot {
+      display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--amber);
+      animation: fl-beacon 1.8s ease-out infinite;
+    }
+    @keyframes fl-beacon {
+      0% { box-shadow: 0 0 0 0 rgba(255, 176, 32, .55); }
+      70% { box-shadow: 0 0 0 7px rgba(255, 176, 32, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 176, 32, 0); }
+    }
+
+    .sports-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--seat);
+      padding-bottom: 4px;
+    }
+    .tab-btn {
+      position: relative;
+      background: transparent;
+      border: none;
+      color: var(--mist);
+      padding: 8px 14px;
+      border-radius: var(--r-sm);
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      transition: color 0.15s, background-color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab-btn:hover { background: var(--stand-2); color: var(--frost); }
+    .tab-btn.active { color: var(--frost); }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      left: 8px; right: 8px; bottom: -5px;
+      height: 3px;
+      background: var(--amber);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .control-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .raw-link {
+      color: var(--amber);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
     .raw-link:hover { text-decoration: underline; }
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 16px; margin-bottom: 24px; }
-    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-    .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
-    .tour-name { font-size: 13px; color: #8b949e; }
-    .tour-meta { font-size: 12px; color: var(--accent); margin-top: 2px; }
-    .teams { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
-    .team-row { display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 600; color: var(--text-bright); }
-    .team-info { display: flex; align-items: center; gap: 10px; }
-    .team-logo { width: 24px; height: 24px; border-radius: 4px; object-fit: contain; background: #21262d; }
-    .team-score { font-size: 18px; font-weight: 700; color: var(--text-bright); min-width: 24px; text-align: right; }
+    /* Floodlit match field */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+      background: var(--flood);
+      color: var(--ink);
+      border-radius: var(--r-md);
+      padding: 16px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid var(--chalk);
+      border-radius: var(--r-md);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .tour-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+    .tour-meta { font-size: 12px; color: var(--ink-2); margin-top: 2px; }
 
-    .details-box { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-size: 12px; font-family: monospace; }
-    .detail-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .teams { display: flex; flex-direction: column; gap: 6px; margin: 4px 0; }
+    .team-row { display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 600; color: var(--ink); }
+    .team-info { display: flex; align-items: center; gap: 8px; }
+    .team-logo { width: 22px; height: 22px; border-radius: var(--r-sm); object-fit: contain; background: var(--flood-2); }
+    .team-score {
+      font-family: var(--font-score);
+      font-variant-numeric: tabular-nums;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      min-width: 26px;
+      text-align: right;
+      line-height: 1;
+    }
+
+    .details-box {
+      background: var(--flood);
+      border: 1px solid var(--chalk);
+      border-radius: var(--r-sm);
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+    .detail-row { display: flex; justify-content: space-between; margin-bottom: 4px; gap: 8px; }
     .detail-row:last-child { margin-bottom: 0; }
-    .detail-label { color: #8b949e; }
-    .detail-val { color: var(--text-bright); font-weight: 500; }
+    .detail-label { color: var(--ink-2); }
+    .detail-val { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
 
     .btn-view-json {
-      background: #21262d; border: 1px solid var(--border); color: var(--accent);
-      padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; text-align: center;
-      transition: background 0.2s;
+      background: var(--stand-2);
+      border: 1px solid var(--seat);
+      color: var(--frost);
+      padding: 7px 12px;
+      border-radius: var(--r-sm);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.15s;
     }
-    .btn-view-json:hover { background: #30363d; }
+    .btn-view-json:hover { background: var(--stand); }
 
     .json-modal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8); z-index: 999; justify-content: center; align-items: center;
+      background: rgba(10, 27, 48, 0.85); z-index: 999; justify-content: center; align-items: center;
+      padding: 16px;
     }
     .json-modal-content {
-      background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
-      width: 90%; max-width: 900px; height: 80%; display: flex; flex-direction: column; padding: 20px;
+      background: var(--stand); border: 1px solid var(--seat); border-radius: var(--r-md);
+      width: 100%; max-width: 900px; height: 80%; display: flex; flex-direction: column; padding: 20px;
     }
     .json-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .json-modal-header h3 { color: var(--text-bright); }
-    .btn-close { background: none; border: none; color: #8b949e; font-size: 20px; cursor: pointer; }
-    .btn-close:hover { color: #fff; }
+    .json-modal-header h3 { color: var(--frost); font-size: 16px; }
+    .btn-close { background: none; border: none; color: var(--mist); font-size: 20px; cursor: pointer; padding: 4px 8px; }
+    .btn-close:hover { color: var(--frost); }
+
     pre {
-      background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 15px;
-      overflow: auto; flex: 1; color: #79c0ff; font-family: monospace; font-size: 13px; line-height: 1.4;
+      background: var(--night); border: 1px solid var(--seat); border-radius: var(--r-sm); padding: 14px;
+      overflow: auto; flex: 1; color: var(--frost);
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px; line-height: 1.45;
     }
 
-    .raw-view-section { margin-top: 30px; border-top: 1px solid var(--border); padding-top: 20px; }
+    .raw-view-section { margin-top: 24px; border-top: 1px solid var(--seat); padding-top: 20px; }
   </style>
 </head>
 <body>
   <header>
     <div>
-      <h1>⚡ UniScore Real-Time API Explorer</h1>
-      <p style="color: #8b949e; font-size: 14px; margin-top: 4px;">Cây dữ liệu 4 tầng chuyên sâu cho 10 môn thể thao (Taxonomy - Entities - Timeline - Center)</p>
+      <h1>UniScore API Explorer</h1>
+      <p class="subtitle">Cây dữ liệu 4 tầng cho 10 môn thể thao</p>
     </div>
     <div>
-      <span class="badge" style="background: #238636; color: #fff;">v2.0 Production</span>
+      <span class="badge" style="background: var(--stand); color: var(--frost); border: 1px solid var(--seat);">v2.0</span>
     </div>
   </header>
 
   <div class="sports-tabs" id="sportsTabs"></div>
 
   <div class="control-bar">
-    <div id="sportStats" style="font-size: 14px; color: #8b949e;"></div>
+    <div id="sportStats" style="font-size: 13px; color: var(--mist);"></div>
     <div>
-      <a id="rawJsonLink" class="raw-link" target="_blank" href="#">👉 Mở file JSON gốc trên tab mới</a>
+      <a id="rawJsonLink" class="raw-link" target="_blank" href="#">Mở file JSON gốc</a>
     </div>
   </div>
 
   <div class="grid" id="matchGrid"></div>
 
   <div class="raw-view-section">
-    <h2 style="font-size: 18px; margin-bottom: 12px; color: var(--text-bright);">📋 Xem trực tiếp JSON Tree của môn hiện tại</h2>
+    <h2 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--frost);">Xem trực tiếp JSON của môn hiện tại</h2>
     <pre id="rawPreview">Đang tải dữ liệu...</pre>
   </div>
 
@@ -116,7 +264,7 @@
   <div class="json-modal" id="jsonModal">
     <div class="json-modal-content">
       <div class="json-modal-header">
-        <h3 id="modalTitle">Chi tiết Cây API Trận Đấu (4 Tầng)</h3>
+        <h3 id="modalTitle">Chi tiết trận đấu (4 tầng)</h3>
         <button class="btn-close" onclick="closeModal()">✕</button>
       </div>
       <pre id="modalJson"></pre>
@@ -158,7 +306,7 @@
 
       const grid = document.getElementById("matchGrid");
       const preview = document.getElementById("rawPreview");
-      grid.innerHTML = "<p style='color: #8b949e;'>Đang tải dữ liệu...</p>";
+      grid.innerHTML = "<p style='color: var(--ink-2);'>Đang tải dữ liệu...</p>";
       preview.innerText = "Đang nạp JSON...";
 
       try {
@@ -168,7 +316,7 @@
         renderMatches(currentData);
         preview.innerText = JSON.stringify(currentData, null, 2);
       } catch (err) {
-        grid.innerHTML = `<p style='color: #f85149;'>Lỗi tải dữ liệu: ${err.message}</p>`;
+        grid.innerHTML = `<p style='color: var(--alert);'>Lỗi tải dữ liệu: ${err.message}</p>`;
         preview.innerText = "Không thể tải file JSON.";
       }
     }
@@ -176,11 +324,11 @@
     function renderMatches(data) {
       const matches = data.matches || [];
       const statsEl = document.getElementById("sportStats");
-      statsEl.innerText = `Tìm thấy ${matches.length} trận đấu được phân tích vào cây 4 tầng`;
+      statsEl.innerText = `Tìm thấy ${matches.length} trận đấu`;
 
       const grid = document.getElementById("matchGrid");
       if (matches.length === 0) {
-        grid.innerHTML = "<p style='color: #8b949e;'>Không có trận đấu nào trong danh sách.</p>";
+        grid.innerHTML = "<p style='color: var(--ink-2);'>Không có trận đấu nào trong danh sách.</p>";
         return;
       }
 
@@ -196,11 +344,14 @@
         const stateCat = timeline.state_category || "Upcoming";
 
         let badgeClass = "badge-upcoming";
-        if (stateCat.includes("Live")) badgeClass = "badge-live";
+        let liveDot = "";
+        if (stateCat.includes("Live")) {
+          badgeClass = "badge-live";
+          liveDot = '<span class="fl-live-dot"></span>';
+        }
         else if (stateCat.includes("Finished")) badgeClass = "badge-finished";
         else if (stateCat.includes("Special")) badgeClass = "badge-special";
 
-        // Professional extras
         let extraInfo = [];
         if (tour.gender) extraInfo.push(`Giới tính: <b>${tour.gender}</b>`);
         if (tour.age_group) extraInfo.push(`Lứa tuổi: <b>${tour.age_group}</b>`);
@@ -214,9 +365,9 @@
             <div class="card-header">
               <div>
                 <div class="tour-name">${tour.name || "Unknown Tournament"}</div>
-                <div class="tour-meta">${tax.country_region ? tax.country_region.name : ''} ${tour.round ? '• ' + tour.round : ''}</div>
+                <div class="tour-meta">${tax.country_region ? tax.country_region.name : ''}${tour.round ? ' — ' + tour.round : ''}</div>
               </div>
-              <span class="badge ${badgeClass}">${stateCat}</span>
+              <span class="badge ${badgeClass}">${liveDot}${stateCat}</span>
             </div>
 
             <div class="teams">
@@ -238,17 +389,17 @@
 
             <div class="details-box">
               <div class="detail-row">
-                <span class="detail-label">Thời gian bắt đầu:</span>
+                <span class="detail-label">Thời gian bắt đầu</span>
                 <span class="detail-val">${timeline.start_time_iso ? new Date(timeline.start_time_iso).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Chưa rõ'}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Đồng hồ thi đấu:</span>
+                <span class="detail-label">Đồng hồ thi đấu</span>
                 <span class="detail-val">${timeline.readtime && timeline.readtime.minute ? timeline.readtime.minute : timeline.status_description}</span>
               </div>
               ${extraInfo.map(info => `<div class="detail-row"><span class="detail-label">${info}</span></div>`).join('')}
             </div>
 
-            <button class="btn-view-json" onclick="openModal(${idx})">🔍 Xem Toàn Bộ JSON Cây 4 Tầng Của Trận Này</button>
+            <button class="btn-view-json" onclick="openModal(${idx})">Xem JSON trận này</button>
           </div>
         `;
       }).join("");
@@ -257,7 +408,7 @@
     function openModal(idx) {
       if (!currentData || !currentData.matches || !currentData.matches[idx]) return;
       const match = currentData.matches[idx];
-      document.getElementById("modalTitle").innerText = `Cây 4 Tầng: ${match.entities.teams_or_players.home.name} vs ${match.entities.teams_or_players.away.name}`;
+      document.getElementById("modalTitle").innerText = `Cây 4 tầng: ${match.entities.teams_or_players.home.name} vs ${match.entities.teams_or_players.away.name}`;
       document.getElementById("modalJson").innerText = JSON.stringify(match, null, 2);
       document.getElementById("jsonModal").style.display = "flex";
     }
@@ -266,7 +417,6 @@
       document.getElementById("jsonModal").style.display = "none";
     }
 
-    // Init
     renderTabs();
     selectSport("football");
   </script>
