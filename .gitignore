@@ -1,0 +1,19 @@
+# Root .gitignore for Sport Platform (Laravel + Python UniScore Pipeline)
+**/vendor/
+**/node_modules/
+**/__pycache__/
+**/*.pyc
+**/.venv/
+web/.env
+web/storage/*.key
+web/storage/logs/*.log
+web/storage/framework/cache/data/*
+web/storage/framework/sessions/*
+web/storage/framework/views/*.php
+web/storage/app/crawl_status.json
+web/storage/app/crawl_stop.flag
+web/database/database.sqlite
+nguon2-uniscore/sports_database.sqlite
+nguon2-uniscore/output/*/*.json
+.DS_Store
+Thumbs.db
