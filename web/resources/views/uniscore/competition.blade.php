@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ $comp['info']['name'] ?? 'Chi tiết giải đấu' }} - UNISCORE</title>
+  <title>{{ $comp['info']['name'] ?? 'Chi tiết giải đấu' }} - {{ $siteSettings['site_name'] ?? 'UNISCORE' }}</title>
+  @if(!empty($siteSettings['site_favicon_url']))
+    <link rel="icon" href="{{ $siteSettings['site_favicon_url'] }}">
+  @endif
   @include('partials.fl-head')
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -46,8 +49,8 @@
   <header class="bg-stand border-b border-seat sticky top-0 z-50">
     <div class="max-w-[1440px] mx-auto px-4 lg:px-6 h-14 flex items-center justify-between gap-3">
       <div class="flex items-center gap-4 min-w-0">
-        <a href="{{ route('home') }}" class="flex items-center font-score text-2xl font-extrabold tracking-tight select-none shrink-0">
-          <span class="text-frost">UNI</span><span class="text-live">SCORE</span>
+        <a href="{{ route('home') }}" class="flex items-center gap-2 font-score text-2xl font-extrabold tracking-tight select-none shrink-0">
+          @include('partials.fl-brand')
         </a>
 
         <form action="{{ route('home') }}" method="GET" class="hidden sm:flex items-center relative">

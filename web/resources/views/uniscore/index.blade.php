@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UNISCORE - Tỷ số trực tiếp 10 môn thể thao</title>
+  <title>{{ $siteSettings['site_name'] ?? 'UNISCORE' }} - {{ $siteSettings['site_tagline'] ?? 'Tỷ số trực tiếp 10 môn thể thao' }}</title>
+  @if(!empty($siteSettings['seo_description']))
+    <meta name="description" content="{{ $siteSettings['seo_description'] }}">
+  @endif
+  @if(!empty($siteSettings['site_favicon_url']))
+    <link rel="icon" href="{{ $siteSettings['site_favicon_url'] }}">
+  @endif
   @include('partials.fl-head')
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -47,8 +53,8 @@
           ☰ Giải đấu
         </button>
 
-        <a href="{{ route('home') }}" class="flex items-center gap-0.5 font-score font-extrabold text-2xl tracking-tight select-none shrink-0">
-          <span class="text-frost">UNI</span><span class="text-live">SCORE</span>
+        <a href="{{ route('home') }}" class="flex items-center gap-2 font-score font-extrabold text-2xl tracking-tight select-none shrink-0">
+          @include('partials.fl-brand')
         </a>
 
         <!-- Search Bar -->
@@ -74,9 +80,11 @@
           <a href="{{ route('competition.show', ['sport' => $sportKey, 'id' => $topLeagues[0]['id'], 'tab' => 'standings']) }}"
              class="hidden lg:inline-flex fl-btn">Bảng xếp hạng</a>
         @endif
-        <a href="http://localhost:8501" target="_blank" class="hidden sm:inline-flex fl-btn">
-          Mission Control
-        </a>
+        @if(($siteSettings['show_mission_control'] ?? '1') === '1')
+          <a href="{{ $siteSettings['mission_control_url'] ?? 'http://localhost:8501' }}" target="_blank" class="hidden sm:inline-flex fl-btn">
+            Mission Control
+          </a>
+        @endif
         <a href="{{ route('admin.index') }}" class="fl-btn">
           Quản trị
         </a>
@@ -171,6 +179,13 @@
 
     <!-- CENTER COLUMN: CONTROLS (NAVY) + FLOODLIT MATCH FIELD (LIGHT) -->
     <main class="flex-1 min-w-0 space-y-3">
+
+      @if(!empty($siteSettings['notice_banner']))
+        <div class="fl-panel border-live/50 px-3.5 py-2 text-xs text-frost flex items-center gap-2">
+          <span class="fl-live-dot shrink-0"></span>
+          <span>{{ $siteSettings['notice_banner'] }}</span>
+        </div>
+      @endif
 
       <!-- AUTO-SYNC CACHE-THROUGH NOTIFICATION -->
       @if(($autoSyncedCount ?? 0) > 0)
@@ -451,6 +466,25 @@
     </aside>
 
   </div>
+
+  <footer class="border-t border-seat bg-stand/80 text-xs text-mist py-3 px-4 mt-4">
+    <div class="max-w-[1520px] mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div>
+        <strong class="text-frost">{{ $siteSettings['site_name'] ?? 'UNISCORE' }}</strong>
+        @if(!empty($siteSettings['footer_text']))
+          <span>— {{ $siteSettings['footer_text'] }}</span>
+        @endif
+      </div>
+      <div class="flex items-center gap-4">
+        @if(!empty($siteSettings['contact_email']))
+          <a href="mailto:{{ $siteSettings['contact_email'] }}" class="hover:text-frost">{{ $siteSettings['contact_email'] }}</a>
+        @endif
+        @if(!empty($siteSettings['support_url']))
+          <a href="{{ $siteSettings['support_url'] }}" target="_blank" class="hover:text-live">Hỗ trợ</a>
+        @endif
+      </div>
+    </div>
+  </footer>
 
   <script>
     // -------------------------------------------------------------------------

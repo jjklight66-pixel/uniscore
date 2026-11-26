@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\SiteSetting;
 use App\Models\SportsMatch;
 use App\Services\UniScoreApiService;
 use Illuminate\Support\Facades\Artisan;
@@ -19,7 +20,8 @@ class SportsController extends Controller
      */
     public function index(Request $request)
     {
-        $sportKey = $request->query('sport', 'football');
+        $defaultSport = SiteSetting::getValue('default_sport', 'football');
+        $sportKey = $request->query('sport', $defaultSport);
         if (!array_key_exists($sportKey, SportsMatch::SPORTS)) {
             $sportKey = 'football';
         }
@@ -449,5 +451,32 @@ class SportsController extends Controller
         $match->delete();
 
         return redirect()->back()->with('success', 'Đã xóa trận đấu khỏi cơ sở dữ liệu!');
+    }
+
+    /**
+     * Save website configuration settings (site name, tagline, logo, SEO, footer, etc.).
+     */
+    public function adminUpdateSettings(Request $request)
+    {
+        $validated = $request->validate([
+            'site_name' => 'required|string|max:80',
+            'site_tagline' => 'nullable|string|max:160',
+            'site_logo_url' => 'nullable|string|max:500',
+            'site_favicon_url' => 'nullable|string|max:500',
+            'seo_description' => 'nullable|string|max:400',
+            'notice_banner' => 'nullable|string|max:500',
+            'footer_text' => 'nullable|string|max:300',
+            'contact_email' => 'nullable|email|max:150',
+            'support_url' => 'nullable|string|max:500',
+            'mission_control_url' => 'nullable|string|max:500',
+            'default_sport' => 'required|string|in:' . implode(',', array_keys(SportsMatch::SPORTS)),
+        ]);
+
+        $validated['show_mission_control'] = $request->boolean('show_mission_control') ? '1' : '0';
+
+        SiteSetting::setMany($validated);
+
+        return redirect()->to(route('admin.index', ['view' => 'settings']) . '#section-settings')
+            ->with('success', 'Đã lưu cấu hình thông tin trang web thành công!');
     }
 }

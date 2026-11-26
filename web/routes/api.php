@@ -16,6 +16,7 @@ Route::get('/docs', fn () => view('api.docs'))->name('api.docs');
 Route::prefix('v1')->middleware('throttle:120,1')->group(function () {
     // Health & Metadata
     Route::get('/health', [SportsApiController::class, 'health']);
+    Route::get('/settings', [SportsApiController::class, 'settings']);
     Route::get('/sports', [SportsApiController::class, 'sports']);
 
     // Matches & Live Scores (DB-First + UniScore)

@@ -60,6 +60,11 @@
            class="flex items-center justify-between gap-2 px-3 py-2 rounded text-xs font-semibold whitespace-nowrap text-mist hover:text-frost hover:bg-stand2/60 transition-colors">
           <span>Bảo trì hệ thống</span>
         </a>
+
+        <a href="#section-settings"
+           class="flex items-center justify-between gap-2 px-3 py-2 rounded text-xs font-semibold whitespace-nowrap transition-colors {{ $adminTab === 'settings' ? 'bg-stand2 text-frost border-l-2 border-live' : 'text-mist hover:text-frost hover:bg-stand2/60' }}">
+          <span>Cấu hình trang web</span>
+        </a>
       </nav>
 
       <div class="hidden lg:block pt-4 border-t border-seat">
@@ -385,6 +390,114 @@
           </div>
         </section>
       </div>
+
+      <!-- WEBSITE CONFIGURATION & BRANDING SETTINGS -->
+      <section id="section-settings" class="fl-panel p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-seat">
+          <div>
+            <h2 class="text-sm font-semibold text-frost">Cấu hình thông tin trang web</h2>
+            <p class="text-xs text-mist mt-0.5">Thay đổi tên trang, slogan, logo, mô tả SEO, thông báo nổi và thông tin chân trang hiển thị cho người dùng.</p>
+          </div>
+          <a href="{{ route('home') }}" target="_blank" class="fl-btn text-xs">Xem trang chủ</a>
+        </div>
+
+        <form action="{{ route('admin.settings.update') }}" method="POST" class="space-y-4 text-xs">
+          @csrf
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div>
+              <label for="cfgSiteName" class="text-mist block mb-1.5 font-medium">Tên trang web *</label>
+              <input id="cfgSiteName" type="text" name="site_name" required maxlength="80"
+                     value="{{ old('site_name', $siteSettings['site_name'] ?? 'UNISCORE') }}"
+                     placeholder="Ví dụ: UNISCORE" class="fl-input w-full">
+            </div>
+
+            <div>
+              <label for="cfgSiteTagline" class="text-mist block mb-1.5 font-medium">Khẩu hiệu / Phụ đề (Tagline)</label>
+              <input id="cfgSiteTagline" type="text" name="site_tagline" maxlength="160"
+                     value="{{ old('site_tagline', $siteSettings['site_tagline'] ?? '') }}"
+                     placeholder="Tỷ số trực tiếp 10 môn thể thao" class="fl-input w-full">
+            </div>
+
+            <div>
+              <label for="cfgDefaultSport" class="text-mist block mb-1.5 font-medium">Môn thể thao mặc định</label>
+              <select id="cfgDefaultSport" name="default_sport" class="fl-input w-full">
+                @foreach($sports as $k => $info)
+                  <option value="{{ $k }}" {{ ($siteSettings['default_sport'] ?? 'football') === $k ? 'selected' : '' }}>
+                    {{ $info['icon'] }} {{ $info['name'] }}
+                  </option>
+                @endforeach
+              </select>
+            </div>
+
+            <div>
+              <label for="cfgLogoUrl" class="text-mist block mb-1.5 font-medium">URL Logo tùy chỉnh (tùy chọn)</label>
+              <input id="cfgLogoUrl" type="text" name="site_logo_url" maxlength="500"
+                     value="{{ old('site_logo_url', $siteSettings['site_logo_url'] ?? '') }}"
+                     placeholder="https://.../logo.png (để trống nếu dùng chữ)" class="fl-input w-full">
+            </div>
+
+            <div>
+              <label for="cfgFaviconUrl" class="text-mist block mb-1.5 font-medium">URL Favicon (biểu tượng tab)</label>
+              <input id="cfgFaviconUrl" type="text" name="site_favicon_url" maxlength="500"
+                     value="{{ old('site_favicon_url', $siteSettings['site_favicon_url'] ?? '') }}"
+                     placeholder="https://.../favicon.ico" class="fl-input w-full">
+            </div>
+
+            <div>
+              <label for="cfgMissionUrl" class="text-mist block mb-1.5 font-medium">Link Mission Control</label>
+              <input id="cfgMissionUrl" type="text" name="mission_control_url" maxlength="500"
+                     value="{{ old('mission_control_url', $siteSettings['mission_control_url'] ?? 'http://localhost:8501') }}"
+                     class="fl-input w-full">
+            </div>
+
+            <div>
+              <label for="cfgContactEmail" class="text-mist block mb-1.5 font-medium">Email liên hệ</label>
+              <input id="cfgContactEmail" type="email" name="contact_email" maxlength="150"
+                     value="{{ old('contact_email', $siteSettings['contact_email'] ?? '') }}"
+                     placeholder="contact@domain.com" class="fl-input w-full">
+            </div>
+
+            <div>
+              <label for="cfgSupportUrl" class="text-mist block mb-1.5 font-medium">Link hỗ trợ / Mạng xã hội</label>
+              <input id="cfgSupportUrl" type="text" name="support_url" maxlength="500"
+                     value="{{ old('support_url', $siteSettings['support_url'] ?? '') }}"
+                     placeholder="https://t.me/... hoặc https://facebook.com/..." class="fl-input w-full">
+            </div>
+
+            <div class="flex items-end pb-1">
+              <label class="flex items-center gap-2.5 text-frost cursor-pointer select-none bg-night/60 border border-seat rounded px-3 py-2 w-full">
+                <input type="checkbox" name="show_mission_control" value="1"
+                       {{ ($siteSettings['show_mission_control'] ?? '1') === '1' ? 'checked' : '' }}>
+                <span>Hiển thị nút Mission Control trên trang chủ</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="cfgSeoDesc" class="text-mist block mb-1.5 font-medium">Mô tả SEO (Meta Description)</label>
+              <textarea id="cfgSeoDesc" name="seo_description" rows="2" maxlength="400" class="fl-input w-full">{{ old('seo_description', $siteSettings['seo_description'] ?? '') }}</textarea>
+            </div>
+            <div>
+              <label for="cfgNoticeBanner" class="text-mist block mb-1.5 font-medium">Thông báo nổi đầu trang chủ (để trống nếu không hiện)</label>
+              <textarea id="cfgNoticeBanner" name="notice_banner" rows="2" maxlength="500"
+                        placeholder="Ví dụ: Lịch thi đấu World Cup đã được cập nhật đầy đủ..." class="fl-input w-full">{{ old('notice_banner', $siteSettings['notice_banner'] ?? '') }}</textarea>
+            </div>
+          </div>
+
+          <div>
+            <label for="cfgFooterText" class="text-mist block mb-1.5 font-medium">Nội dung chân trang (Footer)</label>
+            <input id="cfgFooterText" type="text" name="footer_text" maxlength="300"
+                   value="{{ old('footer_text', $siteSettings['footer_text'] ?? '') }}" class="fl-input w-full">
+          </div>
+
+          <div class="flex justify-end pt-2 border-t border-seat">
+            <button type="submit" class="fl-btn fl-btn--primary px-5 py-2">
+              Lưu cấu hình trang web
+            </button>
+          </div>
+        </form>
+      </section>
 
     </main>
   </div>

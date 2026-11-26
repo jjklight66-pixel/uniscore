@@ -37,4 +37,5 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/system/clear-cache', [SportsController::class, 'adminClearCache'])->name('admin.system.clear_cache');
     Route::post('/system/prune-old', [SportsController::class, 'adminPruneOld'])->name('admin.system.prune_old');
     Route::post('/tournaments/pin', [SportsController::class, 'adminToggleTournamentPin'])->name('admin.tournaments.pin');
+    Route::post('/settings', [SportsController::class, 'adminUpdateSettings'])->name('admin.settings.update');
 });

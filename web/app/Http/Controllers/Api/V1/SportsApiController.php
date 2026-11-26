@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\SiteSetting;
 use App\Models\SportsMatch;
 use App\Services\UniScoreApiService;
 use Illuminate\Http\JsonResponse;
@@ -105,6 +106,25 @@ class SportsApiController extends Controller
             'total_matches_cached' => SportsMatch::count(),
             'live_matches_count' => SportsMatch::where('state_category', 'like', '%Live%')->count(),
             'supported_sports_count' => count(SportsMatch::SPORTS),
+        ]);
+    }
+
+    /**
+     * GET /api/v1/settings
+     */
+    public function settings(): JsonResponse
+    {
+        $all = SiteSetting::allCached();
+        return $this->ok([
+            'site_name' => $all['site_name'],
+            'site_tagline' => $all['site_tagline'],
+            'site_logo_url' => $all['site_logo_url'],
+            'seo_description' => $all['seo_description'],
+            'notice_banner' => $all['notice_banner'],
+            'footer_text' => $all['footer_text'],
+            'contact_email' => $all['contact_email'],
+            'support_url' => $all['support_url'],
+            'default_sport' => $all['default_sport'],
         ]);
     }
 
