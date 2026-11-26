@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quản trị hệ thống — UniScore</title>
+  <title>Quản trị hệ thống — {{ $siteSettings['site_name'] ?? 'UNISCORE' }}</title>
+  @if(!empty($siteSettings['site_favicon_url']))
+    <link rel="icon" href="{{ $siteSettings['site_favicon_url'] }}">
+  @endif
   @include('partials.fl-head')
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -14,8 +17,8 @@
   <header class="bg-stand border-b border-seat px-4 lg:px-6 py-3 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-40">
     <div class="flex items-center gap-3">
       <a href="{{ route('admin.index') }}" class="flex items-center gap-2.5">
-        <span class="font-score text-2xl font-extrabold tracking-tight leading-none select-none">
-          <span class="text-frost">UNI</span><span class="text-live">SCORE</span>
+        <span class="flex items-center gap-2 font-score text-2xl font-extrabold tracking-tight leading-none select-none">
+          @include('partials.fl-brand')
         </span>
         <span class="text-xs font-semibold text-mist border border-seat bg-night px-2 py-0.5 rounded">Quản trị</span>
       </a>
@@ -23,7 +26,9 @@
     </div>
 
     <div class="flex items-center gap-2 text-xs">
-      <a href="http://localhost:8501" target="_blank" class="fl-btn">Mission Control</a>
+      @if(($siteSettings['show_mission_control'] ?? '1') === '1')
+        <a href="{{ $siteSettings['mission_control_url'] ?? 'http://localhost:8501' }}" target="_blank" class="fl-btn">Mission Control</a>
+      @endif
       <a href="{{ route('home') }}" class="fl-btn">Trang chủ</a>
       <form action="{{ route('admin.logout') }}" method="POST" class="inline">
         @csrf

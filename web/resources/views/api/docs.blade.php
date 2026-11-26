@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UniScore Mobile App REST API v1 — Tài liệu Swagger</title>
+    <title>{{ $siteSettings['site_name'] ?? 'UNISCORE' }} Mobile App REST API v1 — Tài liệu Swagger</title>
     @include('partials.fl-head')
     <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui.css">
     <style>
@@ -76,8 +76,8 @@
     <header class="bg-stand border-b border-seat sticky top-0 z-40">
         <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-3">
-                <a href="/" class="font-score text-2xl font-extrabold tracking-tight leading-none select-none">
-                    <span class="text-frost">UNI</span><span class="text-live">SCORE</span>
+                <a href="/" class="flex items-center gap-2 font-score text-2xl font-extrabold tracking-tight leading-none select-none">
+                    @include('partials.fl-brand')
                 </a>
                 <span class="h-4 w-px bg-seat hidden sm:inline-block"></span>
                 <h1 class="text-sm sm:text-base font-semibold text-frost">Mobile App REST API v1</h1>
