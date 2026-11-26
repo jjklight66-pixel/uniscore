@@ -1,0 +1,326 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "UniScore 10-Sports Mobile App REST API",
+    "version": "1.0.0",
+    "description": "Bộ REST API v1 (Stateless, DB-First, Bearer Token Auth) sẵn sàng tích hợp cho Flutter, React Native, Android, iOS và Web App."
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Current Server (v1)"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Opaque Token (usc_...)"
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Kiểm tra trạng thái API & thống kê DB",
+        "responses": { "200": { "description": "API hoạt động bình thường" } }
+      }
+    },
+    "/sports": {
+      "get": {
+        "tags": ["Sports Data"],
+        "summary": "Danh sách 10 môn thể thao & số trận đang live",
+        "responses": { "200": { "description": "Danh sách 10 môn thể thao" } }
+      }
+    },
+    "/matches": {
+      "get": {
+        "tags": ["Sports Data"],
+        "summary": "Danh sách trận đấu (lọc theo môn, ngày, trạng thái, giải đấu, tìm kiếm, phân trang)",
+        "parameters": [
+          { "name": "sport", "in": "query", "schema": { "type": "string", "default": "football" } },
+          { "name": "date", "in": "query", "description": "YYYY-MM-DD", "schema": { "type": "string" } },
+          { "name": "date_from", "in": "query", "schema": { "type": "string" } },
+          { "name": "date_to", "in": "query", "schema": { "type": "string" } },
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["all", "live", "finished", "upcoming"], "default": "all" } },
+          { "name": "league", "in": "query", "schema": { "type": "string" } },
+          { "name": "league_id", "in": "query", "schema": { "type": "string" } },
+          { "name": "q", "in": "query", "description": "Tìm theo tên đội hoặc giải đấu", "schema": { "type": "string" } },
+          { "name": "group_by_league", "in": "query", "schema": { "type": "boolean", "default": false } },
+          { "name": "auto_sync", "in": "query", "schema": { "type": "boolean", "default": true } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "per_page", "in": "query", "schema": { "type": "integer", "default": 50 } }
+        ],
+        "responses": { "200": { "description": "Danh sách trận đấu" } }
+      }
+    },
+    "/matches/{sport}/{eventId}": {
+      "get": {
+        "tags": ["Sports Data"],
+        "summary": "Chi tiết đầy đủ trận đấu (DB-First cho trận đã kết thúc)",
+        "parameters": [
+          { "name": "sport", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "eventId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "home_id", "in": "query", "schema": { "type": "string" } },
+          { "name": "away_id", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Chi tiết trận đấu" } }
+      }
+    },
+    "/matches/{sport}/{eventId}/extended": {
+      "get": {
+        "tags": ["Sports Data"],
+        "summary": "Dữ liệu mở rộng trận đấu (H2H, phân tích AI, tỷ lệ kèo, bracket)",
+        "parameters": [
+          { "name": "sport", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "eventId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "home_id", "in": "query", "schema": { "type": "string" } },
+          { "name": "away_id", "in": "query", "schema": { "type": "string" } },
+          { "name": "comp_id", "in": "query", "schema": { "type": "string" } },
+          { "name": "season_id", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Dữ liệu mở rộng" } }
+      }
+    },
+    "/live/{sport}": {
+      "get": {
+        "tags": ["Sports Data"],
+        "summary": "Polling tỷ số trực tiếp theo môn (gợi ý gọi mỗi 15 giây)",
+        "parameters": [
+          { "name": "sport", "in": "path", "required": true, "schema": { "type": "string", "default": "football" } }
+        ],
+        "responses": { "200": { "description": "Danh sách trận đang live" } }
+      }
+    },
+    "/categories/{sport}": {
+      "get": {
+        "tags": ["Taxonomy & Competitions"],
+        "summary": "Danh sách quốc gia / khu vực của môn thể thao",
+        "parameters": [
+          { "name": "sport", "in": "path", "required": true, "schema": { "type": "string", "default": "football" } }
+        ],
+        "responses": { "200": { "description": "Danh sách quốc gia/khu vực" } }
+      }
+    },
+    "/leagues/{sport}/top": {
+      "get": {
+        "tags": ["Taxonomy & Competitions"],
+        "summary": "Danh sách giải đấu hàng đầu theo môn",
+        "parameters": [
+          { "name": "sport", "in": "path", "required": true, "schema": { "type": "string", "default": "football" } }
+        ],
+        "responses": { "200": { "description": "Top leagues" } }
+      }
+    },
+    "/leagues/{sport}/category/{categoryId}": {
+      "get": {
+        "tags": ["Taxonomy & Competitions"],
+        "summary": "Danh sách giải đấu thuộc một quốc gia / khu vực",
+        "parameters": [
+          { "name": "sport", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "categoryId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Danh sách giải đấu" } }
+      }
+    },
+    "/competitions/{sport}/{id}": {
+      "get": {
+        "tags": ["Taxonomy & Competitions"],
+        "summary": "Chi tiết giải đấu (Tổng quan, BXH, Lịch đấu, Kết quả, Thống kê, Top cầu thủ)",
+        "parameters": [
+          { "name": "sport", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "season", "in": "query", "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "date_from", "in": "query", "schema": { "type": "string" } },
+          { "name": "date_to", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Chi tiết giải đấu" } }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Đăng ký tài khoản App & nhận Bearer Token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "password"],
+                "properties": {
+                  "name": { "type": "string", "example": "Nguyen Van A" },
+                  "email": { "type": "string", "example": "user@example.com" },
+                  "password": { "type": "string", "example": "secret123" },
+                  "device_name": { "type": "string", "example": "iPhone 16 Pro" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Đăng ký thành công" } }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Đăng nhập App & nhận Bearer Token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string", "example": "user@example.com" },
+                  "password": { "type": "string", "example": "secret123" },
+                  "device_name": { "type": "string", "example": "Pixel 9" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Đăng nhập thành công" } }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Thông tin người dùng hiện tại",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "User profile" } }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Đăng xuất (thu hồi token hiện tại hoặc tất cả thiết bị)",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "all_devices": { "type": "boolean", "default": false }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Đăng xuất thành công" } }
+      }
+    },
+    "/favorites": {
+      "get": {
+        "tags": ["Favorites"],
+        "summary": "Danh sách yêu thích của người dùng",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["match", "team", "competition"] } },
+          { "name": "sport", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Danh sách yêu thích" } }
+      },
+      "post": {
+        "tags": ["Favorites"],
+        "summary": "Thêm trận / đội / giải vào mục yêu thích",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["type", "sport", "entity_id"],
+                "properties": {
+                  "type": { "type": "string", "enum": ["match", "team", "competition"] },
+                  "sport": { "type": "string", "example": "football" },
+                  "entity_id": { "type": "string", "example": "123456" },
+                  "name": { "type": "string", "example": "Arsenal vs Chelsea" },
+                  "meta": { "type": "object" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Đã thêm yêu thích" } }
+      }
+    },
+    "/favorites/toggle": {
+      "post": {
+        "tags": ["Favorites"],
+        "summary": "Bật / tắt yêu thích (dùng cho nút trái tim / ngôi sao trên App)",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["type", "sport", "entity_id"],
+                "properties": {
+                  "type": { "type": "string", "enum": ["match", "team", "competition"] },
+                  "sport": { "type": "string", "example": "football" },
+                  "entity_id": { "type": "string", "example": "123456" },
+                  "name": { "type": "string", "example": "Arsenal" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Trạng thái yêu thích mới" } }
+      }
+    },
+    "/favorites/{id}": {
+      "delete": {
+        "tags": ["Favorites"],
+        "summary": "Xóa một mục yêu thích theo ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "Đã xóa" } }
+      }
+    },
+    "/devices/register": {
+      "post": {
+        "tags": ["Push Notifications"],
+        "summary": "Đăng ký FCM / APNs device token (hỗ trợ cả Guest và User đã đăng nhập)",
+        "security": [{ "bearerAuth": [] }, {}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["device_token", "platform"],
+                "properties": {
+                  "device_token": { "type": "string", "example": "fcm_token_example_1234567890" },
+                  "platform": { "type": "string", "enum": ["android", "ios", "web"] },
+                  "device_name": { "type": "string", "example": "Samsung S25" },
+                  "push_enabled": { "type": "boolean", "default": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Đăng ký thiết bị thành công" } }
+      }
+    },
+    "/devices/{token}": {
+      "delete": {
+        "tags": ["Push Notifications"],
+        "summary": "Hủy đăng ký device token",
+        "parameters": [
+          { "name": "token", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Đã hủy đăng ký" } }
+      }
+    }
+  }
+}
