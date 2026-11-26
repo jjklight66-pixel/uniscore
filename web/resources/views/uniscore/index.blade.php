@@ -1754,8 +1754,8 @@
               </div>
               ${pCor || pCard ? `
                 <div class="grid grid-cols-2 gap-2 pt-1 text-[10px]">
-                  ${pCor ? `<div class="bg-[#163152] rounded p-2"><div class="text-mist">Phạt góc (TB ${pCor.average})</div><div class="font-bold text-frost mt-0.5">Tài 9.5: <span class="text-blue-400">${pCor.over_9_5}</span> • Xỉu: <span class="text-emerald-400">${pCor.under_9_5}</span></div></div>` : ''}
-                  ${pCard ? `<div class="bg-[#163152] rounded p-2"><div class="text-mist">Thẻ phạt (TB ${pCard.average})</div><div class="font-bold text-frost mt-0.5">Tài 4.5: <span class="text-blue-400">${pCard.over_4_5}</span> • Xỉu: <span class="text-emerald-400">${pCard.under_4_5}</span></div></div>` : ''}
+                  ${pCor ? `<div class="bg-[#163152] rounded p-2"><div class="text-mist">Phạt góc trung bình</div><div class="font-bold text-frost mt-0.5 font-score text-sm">${pCor.average} quả / trận</div></div>` : ''}
+                  ${pCard ? `<div class="bg-[#163152] rounded p-2"><div class="text-mist">Thẻ phạt trung bình</div><div class="font-bold text-frost mt-0.5 font-score text-sm">${pCard.average} thẻ / trận</div></div>` : ''}
                 </div>
               ` : ''}
             </div>
@@ -1780,11 +1780,11 @@
             </div>
             <div class="grid grid-cols-3 gap-2 text-center">
               <div class="bg-[#163152] border border-[#22406A] rounded-lg p-2">
-                <div class="text-[10px] text-mist">Tài 2.5</div>
+                <div class="text-[10px] text-mist">Trên 2.5 bàn</div>
                 <div class="text-sm font-black text-emerald-400">${an.o25_potential ?? '-'}%</div>
               </div>
               <div class="bg-[#163152] border border-[#22406A] rounded-lg p-2">
-                <div class="text-[10px] text-mist">Tài 1.5</div>
+                <div class="text-[10px] text-mist">Trên 1.5 bàn</div>
                 <div class="text-sm font-black text-blue-400">${an.o15_potential ?? '-'}%</div>
               </div>
               <div class="bg-[#163152] border border-[#22406A] rounded-lg p-2">
