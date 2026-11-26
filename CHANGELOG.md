@@ -6,4 +6,5 @@ Dự án áp dụng chuẩn đánh số phiên bản **Semantic Versioning (`MAJ
 
 | Phiên bản | Ngày phát hành | File mô tả chi tiết | Tóm tắt cập nhật |
 |---|---|---|---|
+| **v1.1.2** | 2026-11-26 | [releases/v1.1.2.md](./releases/v1.1.2.md) | Hồ sơ Đội bóng & Cầu thủ, tối ưu index DB và dọn tài liệu |
 | **v1.1.1** | 2026-11-26 | [releases/v1.1.1.md](./releases/v1.1.1.md) | Giao diện Floodlight toàn hệ thống, REST API v1 cho Mobile App + Swagger UI, Cấu hình thông tin trang web trong Admin, bỏ nhãn Tài/Xỉu trong Phân tích AI |

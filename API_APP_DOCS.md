@@ -51,6 +51,8 @@ Khi lỗi (`401`, `404`, `422`, `429`):
 | `GET` | `/api/v1/leagues/{sport}/top` | Danh sách giải đấu hàng đầu theo môn |
 | `GET` | `/api/v1/leagues/{sport}/category/{categoryId}` | Danh sách giải đấu thuộc 1 quốc gia |
 | `GET` | `/api/v1/competitions/{sport}/{id}` | Chi tiết giải đấu (tổng quan, BXH, lịch đấu, kết quả, vua phá lưới, thống kê) |
+| `GET` | `/api/v1/teams/{sport}/{id}` | Hồ sơ Đội bóng (thông tin CLB, sân nhà, HLV, đội hình, lịch & kết quả, chuyển nhượng) |
+| `GET` | `/api/v1/players/{sport}/{id}` | Hồ sơ Cầu thủ (thông tin cá nhân, CLB hiện tại, lịch sử chuyển nhượng, trận gần đây) |
 
 ### B. Xác thực người dùng App (Bearer Token)
 

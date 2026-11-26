@@ -1,7 +1,7 @@
 # HƯỚNG DẪN TOÀN DIỆN HỆ THỐNG THỂ THAO TRỰC TIẾP UNISCORE (10 MÔN THỂ THAO)
 
-**Dự án:** `sport` (Nền tảng Web Thể thao PHP Laravel + REST API v1 cho Mobile App + Pipeline Thu thập & Mission Control Python FastAPI)  
-**Phiên bản hiện tại:** `v1.1.1` ([VERSION](./VERSION) · [Lịch sử cập nhật CHANGELOG.md](./CHANGELOG.md) · [Chi tiết bản v1.1.1](./releases/v1.1.1.md))  
+**Dự án:** `sport` (Nền tảng Web Thể thao PHP Laravel + REST API v1 cho Mobile App)  
+**Phiên bản hiện tại:** `v1.1.2` ([VERSION](./VERSION) · [Lịch sử cập nhật CHANGELOG.md](./CHANGELOG.md) · [Chi tiết bản v1.1.2](./releases/v1.1.2.md))  
 **Phạm vi:** 10 môn thể thao (*Bóng đá, Bóng rổ, Quần vợt, Bóng bầu dục Mỹ, Bóng chày, Cầu lông, Bóng chuyền, Cricket, Khúc côn cầu trên băng, Bóng bàn*)
 
 ---
@@ -16,17 +16,17 @@ Hệ thống đã tích hợp sẵn bộ **REST API v1 (Stateless, CORS, Rate Li
 | **File đặc tả OpenAPI 3.0 (Postman)** | [web/public/openapi.json](./web/public/openapi.json) | Import trực tiếp vào Postman / Insomnia / OpenAPI Generator |
 | **Swagger UI tương tác (khi chạy local)** | `http://localhost:8000/api/docs` | Giao diện test trực tiếp mọi API ngay trên trình duyệt |
 | **Danh sách Routes API v1** | [web/routes/api.php](./web/routes/api.php) | Toàn bộ đường dẫn `/api/v1/*` |
-| **API Dữ liệu 10 môn thể thao** | [SportsApiController.php](./web/app/Http/Controllers/Api/V1/SportsApiController.php) | `health`, `sports`, `matches`, `live`, `categories`, `leagues`, `competitions` |
+| **API Dữ liệu 10 môn thể thao** | [SportsApiController.php](./web/app/Http/Controllers/Api/V1/SportsApiController.php) | `health`, `settings`, `sports`, `matches`, `live`, `categories`, `leagues`, `competitions`, `teams`, `players` |
 | **API Đăng ký / Đăng nhập Token** | [AuthApiController.php](./web/app/Http/Controllers/Api/V1/AuthApiController.php) | `register`, `login`, `me`, `logout` (Bearer Token SHA-256) |
 | **API Yêu thích & Push Notification** | [UserAppController.php](./web/app/Http/Controllers/Api/V1/UserAppController.php) | `favorites` (thêm/xóa/toggle) & `devices` (FCM / APNs token) |
-| **Hướng dẫn hệ thống chi tiết** | [HUONG_DAN_HE_THONG.md](./HUONG_DAN_HE_THONG.md) | Giải thích kiến trúc, giao diện 10 môn, Admin Panel & Mission Control |
+| **Hướng dẫn hệ thống chi tiết** | [HUONG_DAN_HE_THONG.md](./HUONG_DAN_HE_THONG.md) | Giải thích kiến trúc, giao diện 10 môn & Trang Quản trị Admin |
 | **Hệ thống thiết kế giao diện (Floodlight)** | [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) | Bảng màu sân vận động đêm, mặt sân sáng, typography & component dùng chung |
-| **Cây API 10 môn thể thao gốc** | [DOCUMENTATION_API_TREES_10_SPORTS.md](./nguon2-uniscore/DOCUMENTATION_API_TREES_10_SPORTS.md) | Đặc tả chi tiết cấu trúc dữ liệu từng môn của nguồn UniScore |
+| **Cây API 10 môn thể thao gốc** | [DOCUMENTATION_API_TREES_10_SPORTS.md](./DOCUMENTATION_API_TREES_10_SPORTS.md) | Đặc tả chi tiết cấu trúc dữ liệu từng môn của nguồn UniScore |
 
 ### Bảng tóm tắt Endpoint `/api/v1/*`
 - **Hệ thống, Cấu hình & Môn:** `GET /api/v1/health` · `GET /api/v1/settings` · `GET /api/v1/sports`
 - **Trận đấu & Live:** `GET /api/v1/matches` · `GET /api/v1/matches/{sport}/{eventId}` · `GET /api/v1/matches/{sport}/{eventId}/extended` · `GET /api/v1/live/{sport}`
-- **Quốc gia & Giải đấu:** `GET /api/v1/categories/{sport}` · `GET /api/v1/leagues/{sport}/top` · `GET /api/v1/leagues/{sport}/category/{categoryId}` · `GET /api/v1/competitions/{sport}/{id}`
+- **Quốc gia, Giải đấu, Đội bóng & Cầu thủ:** `GET /api/v1/categories/{sport}` · `GET /api/v1/leagues/{sport}/top` · `GET /api/v1/leagues/{sport}/category/{categoryId}` · `GET /api/v1/competitions/{sport}/{id}` · `GET /api/v1/teams/{sport}/{id}` · `GET /api/v1/players/{sport}/{id}`
 - **Xác thực (Bearer Token):** `POST /api/v1/auth/register` · `POST /api/v1/auth/login` · `GET /api/v1/auth/me` · `POST /api/v1/auth/logout`
 - **Yêu thích & Push Token:** `GET /api/v1/favorites` · `POST /api/v1/favorites` · `POST /api/v1/favorites/toggle` · `DELETE /api/v1/favorites/{id}` · `POST /api/v1/devices/register` · `DELETE /api/v1/devices/{token}`
 
@@ -38,10 +38,9 @@ Hệ thống đã tích hợp sẵn bộ **REST API v1 (Stateless, CORS, Rate Li
 3. [Hướng Dẫn Cài Đặt & Khởi Chạy](#3-huong-dan-cai-dat--khoi-chay)
 4. [Giải Thích Chi Tiết Từng Mục Trên Giao Diện Người Dùng (Trang Chủ)](#4-giai-thich-chi-tiet-tung-muc-tren-giao-dien-nguoi-dung)
 5. [Đặc Thù Hiển Thị Của Từng Môn Trong 10 Môn Thể Thao](#5-dac-thu-hien-thi-cua-tung-mon-trong-10-mon-the-thao)
-6. [Giải Thích Chi Tiết Trang Giải Đấu (Competition Page)](#6-giai-thich-chi-tiet-trang-giai-dau)
+6. [Giải Thích Chi Tiết Trang Giải Đấu, Đội Bóng & Cầu Thủ](#6-giai-thich-chi-tiet-trang-giai-dau)
 7. [Giải Thích Chi Tiết Trang Quản Trị Admin (`/admin`)](#7-giai-thich-chi-tiet-trang-quan-tri-admin)
-8. [Giải Thích Chi Tiết Mission Control Dashboard (`:8501`)](#8-giai-thich-chi-tiet-mission-control-dashboard)
-9. [Cấu Trúc Cơ Sở Dữ Liệu & API Nội Bộ](#9-cau-truc-co-so-du-lieu--api-noi-bo)
+8. [Cấu Trúc Cơ Sở Dữ Liệu & API Nội Bộ](#8-cau-truc-co-so-du-lieu--api-noi-bo)
 
 ---
 
@@ -55,35 +54,36 @@ sport/
 ├── HUONG_DAN_HE_THONG.md                  -> Tài liệu hướng dẫn chi tiết này
 ├── .gitignore                             -> Danh sách file không đưa lên GitHub
 │
-├── web/                                   -> [PHÂN HỆ 1] Ứng dụng Web PHP Laravel (Cổng 8000)
+├── web/                                   -> Ứng dụng Web & API PHP Laravel 13 (Cổng 8000)
 │   ├── app/
 │   │   ├── Console/Commands/
 │   │   │   ├── CrawlRangeCommand.php      -> Lệnh cào ngầm không giới hạn theo khoảng ngày & tốc độ request
-│   │   │   └── SyncSportsData.php         -> Lệnh đồng bộ dữ liệu từ thư mục output vào SQLite
-│   │   ├── Http/Controllers/
-│   │   │   ├── SportsController.php       -> Điều phối Trang chủ, Trang Giải đấu, API AJAX & Admin CRUD
-│   │   │   └── AdminAuthController.php    -> Xác thực Đăng nhập / Đăng xuất Admin
-│   │   ├── Models/SportsMatch.php         -> Model bảng trận đấu trung tâm `sports_matches`
-│   │   └── Services/UniScoreApiService.php -> Lõi kết nối UniScore, mã hóa ảnh CDN, DB-First & Cache-Through
-│   ├── database/migrations/               -> Tạo bảng `sports_matches`, `users`, `cache`, `jobs`
+│   │   │   └── SyncSportsData.php         -> Lệnh đồng bộ dữ liệu JSON vào SQLite
+│   │   ├── Http/
+│   │   │   ├── Controllers/
+│   │   │   │   ├── SportsController.php   -> Điều phối Trang chủ, Giải đấu, Đội bóng, Cầu thủ & Admin
+│   │   │   │   ├── AdminAuthController.php-> Đăng nhập, đăng xuất & đổi mật khẩu Admin
+│   │   │   │   └── Api/V1/                -> Bộ REST API v1 cho Mobile App (Sports, Auth, Favorites, Devices)
+│   │   │   └── Middleware/
+│   │   │       ├── AdminOnly.php          -> Bảo vệ khu vực /admin chỉ cho tài khoản role = 'admin'
+│   │   │       └── ApiTokenAuth.php       -> Xác thực Bearer Token (SHA-256) cho Mobile App
+│   │   ├── Models/                        -> SportsMatch, SiteSetting, User, ApiToken, UserFavorite, UserDeviceToken
+│   │   └── Services/UniScoreApiService.php-> Lõi kết nối UniScore, mã hóa ảnh CDN, DB-First & Cache-Through
+│   ├── database/migrations/               -> Tạo & tối ưu index bảng `sports_matches`, `site_settings`, `users`...
+│   ├── public/
+│   │   ├── css/floodlight.css             -> Hệ thống thiết kế Floodlight dùng chung
+│   │   └── openapi.json                   -> Đặc tả OpenAPI 3.0 cho Postman / Swagger
 │   ├── resources/views/
-│   │   ├── uniscore/index.blade.php       -> Giao diện người dùng 4 cột chuẩn UniScore + 9 tab chi tiết
-│   │   ├── uniscore/competition.blade.php -> Trang chi tiết giải đấu 9 tab (BXH, Chuyển nhượng, Nhánh đấu...)
-│   │   └── admin/
-│   │       ├── login.blade.php            -> Trang đăng nhập quản trị viên
-│   │       └── index.blade.php            -> Trang quản trị Admin (CRUD, Cào ngầm, Bảo trì, Ưu tiên giải)
-│   └── routes/web.php                     -> Khai báo toàn bộ đường dẫn Web & API nội bộ
+│   │   ├── partials/                      -> `fl-head.blade.php`, `fl-brand.blade.php`
+│   │   ├── uniscore/                      -> `index.blade.php`, `competition.blade.php`, `team.blade.php`, `player.blade.php`
+│   │   ├── admin/                         -> `login.blade.php`, `index.blade.php`
+│   │   └── api/docs.blade.php             -> Giao diện Swagger UI (`/api/docs`)
+│   └── routes/                            -> `web.php`, `api.php`, `console.php` (lịch tự động 01:00)
 │
-└── nguon2-uniscore/                       -> [PHÂN HỆ 2] Bộ cào Python & Mission Control (Cổng 8501)
-    ├── app.py                             -> Web Dashboard FastAPI + WebSocket real-time + Export CSV/Excel
-    ├── config.py                          -> Cấu hình 10 môn thể thao & headers chống chặn
-    ├── fetcher.py                         -> Module gọi API UniScore kèm exponential backoff retry
-    ├── parser.py                          -> Bộ chuẩn hóa dữ liệu thô sang Cây 4 Tầng (Target Schema)
-    ├── database.py                        -> Quản lý SQLite riêng của tool Python
-    ├── storage.py                         -> Xuất file JSON phân cấp `output/{sport}/{date}.json`
-    ├── main.py                            -> Chạy pipeline cào nhanh bằng dòng lệnh CLI
-    ├── requirements.txt                   -> Danh sách thư viện Python cần thiết
-    └── DOCUMENTATION_API_TREES_10_SPORTS.md -> Đặc tả kỹ thuật cây JSON 4 tầng của 10 môn
+├── DOCUMENTATION_API_TREES_10_SPORTS.md   -> Đặc tả kỹ thuật cây JSON 4 tầng của 10 môn thể thao
+├── API_APP_DOCS.md                        -> Tài liệu tích hợp REST API v1 cho Mobile App
+├── DESIGN_SYSTEM.md                       -> Tài liệu hệ thống giao diện Floodlight
+└── releases/                              -> Ghi chú phát hành chi tiết theo từng phiên bản (`v1.1.1.md`, `v1.1.2.md`...)
 ```
 
 ---
@@ -118,10 +118,9 @@ sport/
 ## 3. HƯỚNG DẪN CÀI ĐẶT & KHỞI CHẠY
 
 ### Yêu cầu môi trường
-- **PHP >= 8.2** (kèm extension `pdo_sqlite`, `sqlite3`, `curl`, `mbstring`) & **Composer**
-- **Python >= 3.10** & **pip**
+- **PHP >= 8.3** (kèm extension `pdo_sqlite`, `sqlite3`, `curl`, `mbstring`) & **Composer**
 
-### Bước 1: Cài đặt & Khởi chạy Web Laravel (Cổng 8000)
+### Cài đặt & Khởi chạy Web Laravel (Cổng 8000)
 ```bash
 cd sport/web
 cp .env.example .env
@@ -130,27 +129,19 @@ php artisan key:generate
 touch database/database.sqlite
 php artisan migrate
 
-# Tạo tài khoản Admin mặc định (admin@uniscore.local / admin123)
-php artisan tinker --execute="App\Models\User::updateOrCreate(['email' => 'admin@uniscore.local'], ['name' => 'Super Admin', 'password' => Illuminate\Support\Facades\Hash::make('admin123')]);"
+# Tạo tài khoản Admin mặc định (admin@uniscore.local / admin123, role = admin)
+php artisan tinker --execute="App\Models\User::updateOrCreate(['email' => 'admin@uniscore.local'], ['name' => 'Super Admin', 'password' => Illuminate\Support\Facades\Hash::make('admin123'), 'role' => 'admin']);"
 
 # Khởi chạy Web Server tại http://localhost:8000
 php artisan serve --host 0.0.0.0 --port 8000
 ```
 
-### Bước 2: Cài đặt & Khởi chạy Mission Control Python (Cổng 8501 — Tùy chọn)
-```bash
-cd sport/nguon2-uniscore
-pip install -r requirements.txt
-
-# Khởi chạy Mission Control Dashboard tại http://localhost:8501
-uvicorn app:app --host 0.0.0.0 --port 8501
-```
-
 ### Các đường dẫn truy cập chính
 - **Trang chủ Người dùng:** `http://localhost:8000`
+- **Hồ sơ Đội bóng / Cầu thủ:** `http://localhost:8000/team/{sport}/{id}` và `/player/{sport}/{id}`
 - **Trang Đăng nhập Admin:** `http://localhost:8000/admin/login` (`admin@uniscore.local` / `admin123`)
 - **Trang Quản trị Admin:** `http://localhost:8000/admin`
-- **Mission Control Dashboard:** `http://localhost:8501`
+- **Tài liệu Swagger UI cho Mobile App:** `http://localhost:8000/api/docs`
 
 ---
 
@@ -162,13 +153,12 @@ Giao diện trang chủ (`http://localhost:8000`) được thiết kế theo **b
 - **Logo `UNISCORE`:** Bấm để quay về trang chủ mặc định.
 - **Ô Tìm kiếm (`🔍 Tìm kiếm đội bóng, giải đấu...`):** Gõ tên bất kỳ CLB, VĐV hoặc tên giải đấu rồi nhấn Enter để lọc nhanh các trận đấu.
 - **Nhãn `● LIVE: X`:** Đếm tổng số trận đang thi đấu trực tiếp, tự cập nhật mỗi 15 giây.
-- **Nút `XẾP HẠNG`:** Mở nhanh bảng xếp hạng của giải đấu hàng đầu thuộc môn đang chọn.
-- **Nút `⚙️ Mission Control`:** Mở tab mới sang trung tâm điều khiển cào Python (cổng 8501).
-- **Nút `🛠️ Admin`:** Đi tới trang quản trị hệ thống (`/admin`).
+- **Nút `Bảng xếp hạng`:** Mở nhanh bảng xếp hạng của giải đấu hàng đầu thuộc môn đang chọn.
+- **Nút `Quản trị`:** Đi tới trang quản trị hệ thống (`/admin`).
 
-### 4.2. Cột 1 (Ngoài cùng bên trái) — Thanh Dọc 10 Môn Thể Thao
-- Liệt kê dọc 10 môn kèm biểu tượng: ⚽ Bóng đá, 🏀 Bóng rổ, 🎾 Quần vợt, 🏈 Bóng bầu dục Mỹ, ⚾ Bóng chày, 🏸 Cầu lông, 🏐 Bóng chuyền, 🏏 Cricket, 🏒 Khúc côn cầu trên băng, 🏓 Bóng bàn.
-- Môn đang chọn được tô viền vàng cam nổi bật. Bấm vào môn nào sẽ tải ngay toàn bộ giải đấu, quốc gia và lịch thi đấu của môn đó.
+### 4.2. Thanh Ngang 10 Môn Thể Thao
+- Liệt kê ngang ngay dưới Header 10 môn kèm biểu tượng: ⚽ Bóng đá, 🏀 Bóng rổ, 🎾 Quần vợt, 🏈 Bóng bầu dục Mỹ, ⚾ Bóng chày, 🏸 Cầu lông, 🏐 Bóng chuyền, 🏏 Cricket, 🏒 Khúc côn cầu trên băng, 🏓 Bóng bàn.
+- Môn đang chọn được gạch chân màu hổ phách (`#FFB020`). Bấm vào môn nào sẽ tải ngay toàn bộ giải đấu, quốc gia và lịch thi đấu của môn đó.
 
 ### 4.3. Cột 2 (Sidebar Trái) — 2 Khối Danh Mục Giải Đấu
 1. **Khối `Giải Đấu Nổi Bật (★ TOP)`:**
@@ -265,21 +255,14 @@ Truy cập khi bấm vào bất kỳ tên giải đấu nào (`/competition/{spo
 - **Tab `🏆 Quản Lý Ưu Tiên Giải Đấu`:**
   - Bấm **`☆ Ghim cả giải lên đầu`** để ghim toàn bộ các trận thuộc giải đấu đó lên đầu trang chủ người dùng chỉ bằng 1 click.
 - **Khối `Cấu hình thông tin trang web` (`#section-settings`):**
-  - Cho phép Admin thay đổi trực tiếp **Tên trang web**, **Khẩu hiệu (Tagline)**, **Môn thể thao mặc định**, **URL Logo & Favicon**, **Mô tả SEO**, **Thông báo nổi đầu trang**, **Nội dung chân trang (Footer)**, **Email liên hệ**, **Link hỗ trợ** và **Bật/Tắt nút Mission Control**.
+  - Cho phép Admin thay đổi trực tiếp **Tên trang web**, **Khẩu hiệu (Tagline)**, **Môn thể thao mặc định**, **URL Logo & Favicon**, **Mô tả SEO**, **Thông báo nổi đầu trang**, **Nội dung chân trang (Footer)**, **Email liên hệ** và **Link hỗ trợ**.
   - Lưu vào bảng `site_settings` kèm cache tự động làm mới, đồng bộ tức thì ra toàn bộ giao diện Web và endpoint `GET /api/v1/settings` cho Mobile App.
+- **Khối `Đổi mật khẩu quản trị` (`#section-password`):**
+  - Cho phép Admin đổi mật khẩu tài khoản quản trị trực tiếp trên giao diện web; bảo vệ chặt bằng phân quyền `role = 'admin'` (tài khoản người dùng App bị chặn truy cập `/admin`).
 
 ---
 
-## 8. GIẢI THÍCH CHI TIẾT MISSION CONTROL DASHBOARD (`:8501`)
-
-Giao diện Python chuyên sâu dành cho kỹ sư dữ liệu (`http://localhost:8501`):
-- **Thanh bên (Sidebar):** Chế độ chạy (1 lần / Định kỳ), Số luồng (`Workers 1–20`), Độ trễ (`Delay 0.2s–5.0s`), Danh sách Proxy xoay vòng, Nút `🔄 Làm mới Cookie/Token`, Chọn đích lưu trữ (`JSON` / `Database` / `Cả 2` / `Webhook`).
-- **Khu vực Điều khiển:** Chọn nhiều môn cùng lúc (`Chọn tất cả 10 môn`), Trạng thái, Ngày, Lọc giải đấu, và 5 công tắc bật/tắt độ sâu dữ liệu (*Scoreboard, Events, Lineups, Stats, Standings*).
-- **Giám sát & 3 Tab dưới:** Nút **`▶ START` / `⏸ PAUSE` / `⏹ STOP`**, 4 thẻ KPI thời gian thực, thanh tiến trình %, **Tab 1: Live Console WebSocket** (log màu theo thời gian thực), **Tab 2: Data Preview** (xem trước cây JSON 4 tầng), **Tab 3: Export & Download** (tải trực tiếp file **`.json`**, **`.csv`**, hoặc **`.xlsx` Excel**).
-
----
-
-## 9. CẤU TRÚC CƠ SỞ DỮ LIỆU & API NỘI BỘ
+## 8. CẤU TRÚC CƠ SỞ DỮ LIỆU & API NỘI BỘ
 
 ### Bảng chính `sports_matches` (SQLite: `web/database/database.sqlite`)
 | Cột | Kiểu | Ý nghĩa |

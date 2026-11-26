@@ -30,6 +30,8 @@ Route::prefix('v1')->middleware('throttle:120,1')->group(function () {
     Route::get('/leagues/{sport}/top', [SportsApiController::class, 'topLeagues']);
     Route::get('/leagues/{sport}/category/{categoryId}', [SportsApiController::class, 'leaguesByCategory']);
     Route::get('/competitions/{sport}/{id}', [SportsApiController::class, 'competition']);
+    Route::get('/teams/{sport}/{id}', [SportsApiController::class, 'team']);
+    Route::get('/players/{sport}/{id}', [SportsApiController::class, 'player']);
 
     // Authentication (Bearer Token)
     Route::prefix('auth')->group(function () {

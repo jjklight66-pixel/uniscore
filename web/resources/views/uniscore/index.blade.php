@@ -399,10 +399,10 @@
           </div>
 
           <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-center">
-            <div class="flex flex-col items-center">
+            <a id="rpHomeLink" href="#" class="flex flex-col items-center group">
               <img id="rpHomeLogo" src="" class="w-12 h-12 object-contain mb-1.5 rounded-[8px] bg-night p-1 border border-seat">
-              <div id="rpHomeName" class="text-[13px] font-semibold text-frost line-clamp-2">Home</div>
-            </div>
+              <div id="rpHomeName" class="text-[13px] font-semibold text-frost group-hover:text-live line-clamp-2">Home</div>
+            </a>
 
             <div class="px-2">
               <div id="rpLiveBadge" class="hidden inline-flex items-center gap-1.5 px-2.5 py-0.5 mb-1.5 rounded-[4px] bg-live/20 border border-live/50 text-[11px] font-semibold text-live">
@@ -415,10 +415,10 @@
               <div id="rpStatusLabel" class="font-score text-sm font-bold text-mist mt-1">Upcoming</div>
             </div>
 
-            <div class="flex flex-col items-center">
+            <a id="rpAwayLink" href="#" class="flex flex-col items-center group">
               <img id="rpAwayLogo" src="" class="w-12 h-12 object-contain mb-1.5 rounded-[8px] bg-night p-1 border border-seat">
-              <div id="rpAwayName" class="text-[13px] font-semibold text-frost line-clamp-2">Away</div>
-            </div>
+              <div id="rpAwayName" class="text-[13px] font-semibold text-frost group-hover:text-live line-clamp-2">Away</div>
+            </a>
           </div>
 
           <div id="rpMetaInfo" class="mt-3 pt-2 border-t border-seat/70 flex items-center justify-center gap-4 text-[11px] fl-muted">
@@ -726,6 +726,10 @@
 
       document.getElementById('rpHomeName').innerText = match.home_team;
       document.getElementById('rpAwayName').innerText = match.away_team;
+      const homeLinkEl = document.getElementById('rpHomeLink');
+      const awayLinkEl = document.getElementById('rpAwayLink');
+      if (homeLinkEl) homeLinkEl.href = teams.home?.id ? `/team/${match.sport_key}/${teams.home.id}` : '#';
+      if (awayLinkEl) awayLinkEl.href = teams.away?.id ? `/team/${match.sport_key}/${teams.away.id}` : '#';
       document.getElementById('rpHomeLogo').src = match.home_logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(match.home_team)}&background=1e2330&color=fff`;
       document.getElementById('rpAwayLogo').src = match.away_logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(match.away_team)}&background=1e2330&color=fff`;
 

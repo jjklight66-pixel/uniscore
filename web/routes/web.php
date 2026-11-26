@@ -7,6 +7,8 @@ use App\Http\Controllers\AdminAuthController;
 // User Facing - 99% UniScore interface
 Route::get('/', [SportsController::class, 'index'])->name('home');
 Route::get('/competition/{sport}/{id}', [SportsController::class, 'competition'])->name('competition.show');
+Route::get('/team/{sport}/{id}', [SportsController::class, 'team'])->name('team.show');
+Route::get('/player/{sport}/{id}', [SportsController::class, 'player'])->name('player.show');
 
 // AJAX API for interactive sidebar, right match panel & real-time live updates
 Route::get('/api/leagues/{sport}/{categoryId}', [SportsController::class, 'apiLeaguesByCategory'])->name('api.leagues');

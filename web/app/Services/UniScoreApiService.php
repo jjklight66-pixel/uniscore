@@ -1143,4 +1143,111 @@ class UniScoreApiService
             return $detailResult;
         });
     }
+
+    /**
+     * Fetch Team Profile (info, logo, squad players, upcoming & recent matches, transfers).
+     */
+    public function getTeamOverview(string $sportKey, string $teamId, int $page = 1): array
+    {
+        $slug = self::SPORT_SLUGS[$sportKey] ?? 'football';
+        $apiPage = max(0, $page - 1);
+
+        return Cache::remember("uniscore_team_{$sportKey}_{$teamId}_p{$apiPage}", 600, function () use ($sportKey, $slug, $teamId, $page, $apiPage) {
+            $infoRes = $this->get("{$slug}/team/{$teamId}");
+            $team = $infoRes['data']['team'] ?? ($infoRes['data'] ?? []);
+
+            $playersRes = $this->get("{$slug}/team/{$teamId}/players");
+            $rawPlayers = $playersRes['data']['players'] ?? [];
+            $players = [];
+            foreach ($rawPlayers as $item) {
+                $p = $item['player'] ?? $item;
+                $pid = $p['id'] ?? null;
+                if (!$pid) {
+                    continue;
+                }
+                $players[] = [
+                    'id' => $pid,
+                    'name' => $p['name'] ?? '',
+                    'short_name' => $p['shortName'] ?? ($p['name'] ?? ''),
+                    'position' => $p['position'] ?? '',
+                    'shirt_number' => $p['jerseyNumber'] ?? ($p['shirtNumber'] ?? null),
+                    'country' => $p['country']['name'] ?? '',
+                    'avatar' => self::playerAvatar($sportKey, (string) $pid),
+                    'market_value' => $p['proposedMarketValueRaw']['value'] ?? ($p['marketValue'] ?? null),
+                ];
+            }
+
+            $nextRes = $this->get("{$slug}/team/{$teamId}/events/next/{$apiPage}");
+            $lastRes = $this->get("{$slug}/team/{$teamId}/events/last/{$apiPage}");
+            $trRes = $this->get("{$slug}/team/{$teamId}/transfers");
+
+            $normalizeEv = function (array $ev) use ($sportKey) {
+                $hId = $ev['homeTeam']['id'] ?? null;
+                $aId = $ev['awayTeam']['id'] ?? null;
+                $tId = $ev['tournament']['id'] ?? ($ev['uniqueTournament']['id'] ?? null);
+                $ev['home_logo'] = $hId ? self::teamLogo($sportKey, (string) $hId) : null;
+                $ev['away_logo'] = $aId ? self::teamLogo($sportKey, (string) $aId) : null;
+                $ev['tournament_logo'] = $tId ? self::tournamentLogo($sportKey, (string) $tId) : null;
+                return $ev;
+            };
+
+            $upcoming = array_map($normalizeEv, $nextRes['data']['events'] ?? []);
+            $finished = array_map($normalizeEv, $lastRes['data']['events'] ?? []);
+
+            return [
+                'id' => $teamId,
+                'sport_key' => $sportKey,
+                'logo' => self::teamLogo($sportKey, $teamId),
+                'team' => $team,
+                'players' => $players,
+                'upcoming_events' => $upcoming,
+                'finished_events' => array_reverse($finished),
+                'transfers_in' => $trRes['data']['transfersIn'] ?? [],
+                'transfers_out' => $trRes['data']['transfersOut'] ?? [],
+                'active_page' => $page,
+            ];
+        });
+    }
+
+    /**
+     * Fetch Player Profile (bio, current team, avatar, transfer history, recent matches).
+     */
+    public function getPlayerOverview(string $sportKey, string $playerId, int $page = 1): array
+    {
+        $slug = self::SPORT_SLUGS[$sportKey] ?? 'football';
+        $apiPage = max(0, $page - 1);
+
+        return Cache::remember("uniscore_player_{$sportKey}_{$playerId}_p{$apiPage}", 600, function () use ($sportKey, $slug, $playerId, $page, $apiPage) {
+            $infoRes = $this->get("{$slug}/player/{$playerId}");
+            $player = $infoRes['data']['player'] ?? ($infoRes['data'] ?? []);
+            $teamId = $player['team']['id'] ?? null;
+
+            $trRes = $this->get("{$slug}/player/{$playerId}/transfer-history");
+            $evRes = $this->get("{$slug}/player/{$playerId}/events/last/{$apiPage}");
+
+            $rawEvents = $evRes['data']['events'] ?? [];
+            $statsMap = $evRes['data']['statisticsMap'] ?? [];
+            $events = [];
+            foreach (array_reverse($rawEvents) as $ev) {
+                $eid = $ev['id'] ?? null;
+                $hId = $ev['homeTeam']['id'] ?? null;
+                $aId = $ev['awayTeam']['id'] ?? null;
+                $ev['home_logo'] = $hId ? self::teamLogo($sportKey, (string) $hId) : null;
+                $ev['away_logo'] = $aId ? self::teamLogo($sportKey, (string) $aId) : null;
+                $ev['player_stats'] = $eid ? ($statsMap[$eid] ?? null) : null;
+                $events[] = $ev;
+            }
+
+            return [
+                'id' => $playerId,
+                'sport_key' => $sportKey,
+                'avatar' => self::playerAvatar($sportKey, $playerId),
+                'team_logo' => $teamId ? self::teamLogo($sportKey, (string) $teamId) : null,
+                'player' => $player,
+                'transfer_history' => $trRes['data']['transferHistory'] ?? [],
+                'recent_events' => $events,
+                'active_page' => $page,
+            ];
+        });
+    }
 }

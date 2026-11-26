@@ -29,7 +29,7 @@ class SportsApiController extends Controller
         $taxonomy = $payload['taxonomy'] ?? [];
         $tourObj = $taxonomy['tournament_league'] ?? [];
         $countryObj = $taxonomy['country_region'] ?? [];
-        $tourId = $tourObj['id'] ?? null;
+        $tourId = $m->tournament_id ?: ($tourObj['id'] ?? null);
 
         $teamsObj = $payload['entities']['teams_or_players'] ?? ($payload['participants'] ?? []);
         $homeObj = $teamsObj['home'] ?? [];
@@ -233,7 +233,7 @@ class SportsApiController extends Controller
         }
 
         if ($leagueId !== '') {
-            $query->where('payload', 'like', '%"id":"' . $leagueId . '"%');
+            $query->where('tournament_id', $leagueId);
         }
 
         $query->orderByDesc('is_pinned')
@@ -448,6 +448,46 @@ class SportsApiController extends Controller
             'competition_id' => $id,
             'page' => $page,
             'season' => $seasonId,
+            'server_time' => time(),
+        ]);
+    }
+
+    /**
+     * GET /api/v1/teams/{sport}/{id}
+     */
+    public function team(string $sport, string $id, Request $request): JsonResponse
+    {
+        if (!$this->normalizeSport($sport)) {
+            return $this->fail("Môn thể thao không hợp lệ: {$sport}", 422);
+        }
+
+        $page = max(1, (int) $request->query('page', 1));
+        $data = $this->uniscore->getTeamOverview($sport, $id, $page);
+
+        return $this->ok($data, [
+            'sport' => $sport,
+            'team_id' => $id,
+            'page' => $page,
+            'server_time' => time(),
+        ]);
+    }
+
+    /**
+     * GET /api/v1/players/{sport}/{id}
+     */
+    public function player(string $sport, string $id, Request $request): JsonResponse
+    {
+        if (!$this->normalizeSport($sport)) {
+            return $this->fail("Môn thể thao không hợp lệ: {$sport}", 422);
+        }
+
+        $page = max(1, (int) $request->query('page', 1));
+        $data = $this->uniscore->getPlayerOverview($sport, $id, $page);
+
+        return $this->ok($data, [
+            'sport' => $sport,
+            'player_id' => $id,
+            'page' => $page,
             'server_time' => time(),
         ]);
     }

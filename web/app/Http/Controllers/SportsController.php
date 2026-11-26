@@ -155,6 +155,39 @@ class SportsController extends Controller
     }
 
     /**
+     * Team Profile Page (Overview, Squad, Fixtures/Results, Transfers).
+     */
+    public function team(Request $request, string $sportKey, string $teamId)
+    {
+        if (!array_key_exists($sportKey, SportsMatch::SPORTS)) {
+            $sportKey = 'football';
+        }
+        $tab = $request->query('tab', 'overview');
+        $page = max(1, (int) $request->query('page', 1));
+        $sports = SportsMatch::SPORTS;
+        $liveCount = SportsMatch::where('state_category', 'like', '%Live%')->count();
+        $teamData = $this->uniscore->getTeamOverview($sportKey, $teamId, $page);
+
+        return view('uniscore.team', compact('sports', 'sportKey', 'teamId', 'tab', 'liveCount', 'teamData'));
+    }
+
+    /**
+     * Player Profile Page (Bio, Transfer History, Recent Match Stats).
+     */
+    public function player(Request $request, string $sportKey, string $playerId)
+    {
+        if (!array_key_exists($sportKey, SportsMatch::SPORTS)) {
+            $sportKey = 'football';
+        }
+        $page = max(1, (int) $request->query('page', 1));
+        $sports = SportsMatch::SPORTS;
+        $liveCount = SportsMatch::where('state_category', 'like', '%Live%')->count();
+        $playerData = $this->uniscore->getPlayerOverview($sportKey, $playerId, $page);
+
+        return view('uniscore.player', compact('sports', 'sportKey', 'playerId', 'liveCount', 'playerData'));
+    }
+
+    /**
      * AJAX: Expand Country -> List all Leagues in that Country.
      */
     public function apiLeaguesByCategory(string $sportKey, string $categoryId)

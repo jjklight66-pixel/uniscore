@@ -18,6 +18,18 @@ class SportsMatch extends Model
         'priority_order' => 'integer',
     ];
 
+    protected static function booted(): void
+    {
+        static::saving(function (self $match) {
+            if (empty($match->tournament_id) && is_array($match->payload)) {
+                $tourId = $match->payload['taxonomy']['tournament_league']['id'] ?? null;
+                if ($tourId) {
+                    $match->tournament_id = (string) $tourId;
+                }
+            }
+        });
+    }
+
     public const SPORTS = [
         'football' => ['name' => 'Bóng đá', 'icon' => '⚽'],
         'basketball' => ['name' => 'Bóng rổ', 'icon' => '🏀'],
