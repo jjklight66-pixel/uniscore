@@ -468,11 +468,8 @@ class SportsController extends Controller
             'footer_text' => 'nullable|string|max:300',
             'contact_email' => 'nullable|email|max:150',
             'support_url' => 'nullable|string|max:500',
-            'mission_control_url' => 'nullable|string|max:500',
             'default_sport' => 'required|string|in:' . implode(',', array_keys(SportsMatch::SPORTS)),
         ]);
-
-        $validated['show_mission_control'] = $request->boolean('show_mission_control') ? '1' : '0';
 
         SiteSetting::setMany($validated);
 

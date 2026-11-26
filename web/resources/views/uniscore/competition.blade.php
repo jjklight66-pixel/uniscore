@@ -66,10 +66,6 @@
           <span>Live</span>
           <span class="font-score text-sm text-live fl-num">{{ $liveCount ?? 0 }}</span>
         </div>
-        <a href="http://localhost:8501" target="_blank" class="fl-btn">
-          <span class="hidden sm:inline">Mission Control</span>
-          <span class="sm:hidden">Mission</span>
-        </a>
         <a href="{{ route('admin.index') }}" class="fl-btn">Quản trị</a>
       </div>
     </div>

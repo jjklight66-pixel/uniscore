@@ -20,8 +20,6 @@ class SiteSetting extends Model
         'footer_text' => 'Nền tảng dữ liệu thể thao trực tiếp 10 môn.',
         'contact_email' => '',
         'support_url' => '',
-        'mission_control_url' => 'http://localhost:8501',
-        'show_mission_control' => '1',
         'default_sport' => 'football',
     ];
 

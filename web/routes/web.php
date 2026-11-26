@@ -21,9 +21,10 @@ Route::get('/admin/signin', [AdminAuthController::class, 'showLogin'])->name('ad
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
-// Protected Admin Panel (Auth Required)
-Route::prefix('admin')->middleware('auth')->group(function () {
+// Protected Admin Panel (Auth + Admin Role Required)
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/', [SportsController::class, 'admin'])->name('admin.index');
+    Route::post('/password', [AdminAuthController::class, 'updatePassword'])->name('admin.password.update');
     Route::post('/scraper/trigger', [SportsController::class, 'triggerScraper'])->name('admin.scraper.trigger');
     Route::get('/scraper/status', [SportsController::class, 'adminScraperStatus'])->name('admin.scraper.status');
     Route::post('/scraper/stop', [SportsController::class, 'adminScraperStop'])->name('admin.scraper.stop');

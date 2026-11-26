@@ -80,11 +80,6 @@
           <a href="{{ route('competition.show', ['sport' => $sportKey, 'id' => $topLeagues[0]['id'], 'tab' => 'standings']) }}"
              class="hidden lg:inline-flex fl-btn">Bảng xếp hạng</a>
         @endif
-        @if(($siteSettings['show_mission_control'] ?? '1') === '1')
-          <a href="{{ $siteSettings['mission_control_url'] ?? 'http://localhost:8501' }}" target="_blank" class="hidden sm:inline-flex fl-btn">
-            Mission Control
-          </a>
-        @endif
         <a href="{{ route('admin.index') }}" class="fl-btn">
           Quản trị
         </a>
@@ -363,13 +358,13 @@
                       </div>
                     </div>
 
-                    <!-- Right: Pin Star -->
+                    <!-- Right: Follow Match Star (localStorage) -->
                     <div class="w-7 shrink-0 flex justify-end" onclick="event.stopPropagation()">
-                      <form action="{{ route('admin.matches.pin', $m->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" title="Ghim ưu tiên"
-                                class="text-sm {{ $m->is_pinned ? 'text-live' : 'text-ink2/35 hover:text-ink2' }}">★</button>
-                      </form>
+                      <button type="button"
+                              data-follow-match-id="{{ $m->id }}"
+                              onclick="toggleFollowMatch({{ $m->id }}, this)"
+                              title="Theo dõi trận đấu"
+                              class="text-sm transition-colors {{ $m->is_pinned ? 'text-live' : 'text-ink2/35 hover:text-ink2' }}">★</button>
                     </div>
                   </div>
                 @endforeach
@@ -643,6 +638,37 @@
       const aside = document.getElementById('leftLeaguesAside');
       if (aside) aside.classList.toggle('is-mobile-open');
     }
+
+    function getFollowedMatchIds() {
+      try {
+        return JSON.parse(localStorage.getItem('uniscore_followed_matches') || '[]').map(String);
+      } catch (e) {
+        return [];
+      }
+    }
+    function toggleFollowMatch(matchId, btn) {
+      const id = String(matchId);
+      const list = new Set(getFollowedMatchIds());
+      if (list.has(id)) {
+        list.delete(id);
+        btn.classList.remove('text-live');
+        btn.classList.add('text-ink2/35');
+      } else {
+        list.add(id);
+        btn.classList.remove('text-ink2/35');
+        btn.classList.add('text-live');
+      }
+      try { localStorage.setItem('uniscore_followed_matches', JSON.stringify([...list])); } catch (e) {}
+    }
+    (function hydrateFollowedStars() {
+      const list = new Set(getFollowedMatchIds());
+      document.querySelectorAll('[data-follow-match-id]').forEach(btn => {
+        if (list.has(String(btn.dataset.followMatchId))) {
+          btn.classList.remove('text-ink2/35');
+          btn.classList.add('text-live');
+        }
+      });
+    })();
     function closeMobileRightPanel() {
       const aside = document.getElementById('rightDetailAside');
       if (aside) aside.classList.remove('is-mobile-open');

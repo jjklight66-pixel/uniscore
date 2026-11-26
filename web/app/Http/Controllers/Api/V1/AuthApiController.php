@@ -29,6 +29,7 @@ class AuthApiController extends Controller
             'name' => $validated['name'],
             'email' => strtolower(trim($validated['email'])),
             'password' => $validated['password'],
+            'role' => 'user',
         ]);
 
         $issued = ApiToken::issue($user, $validated['device_name'] ?? 'mobile-app');
