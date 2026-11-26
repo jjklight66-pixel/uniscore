@@ -1,8 +1,33 @@
 # HƯỚNG DẪN TOÀN DIỆN HỆ THỐNG THỂ THAO TRỰC TIẾP UNISCORE (10 MÔN THỂ THAO)
 
-**Dự án:** `sport` (Nền tảng Web Thể thao PHP Laravel + Pipeline Thu thập & Mission Control Python FastAPI)  
-**Phiên bản:** `2.0 Production`  
+**Dự án:** `sport` (Nền tảng Web Thể thao PHP Laravel + REST API v1 cho Mobile App + Pipeline Thu thập & Mission Control Python FastAPI)  
+**Phiên bản:** `2.1 Production (Ready for Mobile App)`  
 **Phạm vi:** 10 môn thể thao (*Bóng đá, Bóng rổ, Quần vợt, Bóng bầu dục Mỹ, Bóng chày, Cầu lông, Bóng chuyền, Cricket, Khúc côn cầu trên băng, Bóng bàn*)
+
+---
+
+## TRUY CẬP NHANH TÀI LIỆU & API CHO MOBILE APP (FLUTTER / REACT NATIVE / ANDROID / IOS)
+
+Hệ thống đã tích hợp sẵn bộ **REST API v1 (Stateless, CORS, Rate Limit, Bearer Token Auth, DB-First)**. Xem nhanh các tài liệu & mã nguồn API tại đây:
+
+| Tài nguyên | Link trực tiếp | Mô tả |
+|---|---|---|
+| **Tài liệu hướng dẫn tích hợp API App** | [API_APP_DOCS.md](./API_APP_DOCS.md) | Danh sách endpoint, format JSON, ví dụ code Flutter & React Native |
+| **File đặc tả OpenAPI 3.0 (Postman)** | [web/public/openapi.json](./web/public/openapi.json) | Import trực tiếp vào Postman / Insomnia / OpenAPI Generator |
+| **Swagger UI tương tác (khi chạy local)** | `http://localhost:8000/api/docs` | Giao diện test trực tiếp mọi API ngay trên trình duyệt |
+| **Danh sách Routes API v1** | [web/routes/api.php](./web/routes/api.php) | Toàn bộ đường dẫn `/api/v1/*` |
+| **API Dữ liệu 10 môn thể thao** | [SportsApiController.php](./web/app/Http/Controllers/Api/V1/SportsApiController.php) | `health`, `sports`, `matches`, `live`, `categories`, `leagues`, `competitions` |
+| **API Đăng ký / Đăng nhập Token** | [AuthApiController.php](./web/app/Http/Controllers/Api/V1/AuthApiController.php) | `register`, `login`, `me`, `logout` (Bearer Token SHA-256) |
+| **API Yêu thích & Push Notification** | [UserAppController.php](./web/app/Http/Controllers/Api/V1/UserAppController.php) | `favorites` (thêm/xóa/toggle) & `devices` (FCM / APNs token) |
+| **Hướng dẫn hệ thống chi tiết** | [HUONG_DAN_HE_THONG.md](./HUONG_DAN_HE_THONG.md) | Giải thích kiến trúc, giao diện 10 môn, Admin Panel & Mission Control |
+| **Cây API 10 môn thể thao gốc** | [DOCUMENTATION_API_TREES_10_SPORTS.md](./nguon2-uniscore/DOCUMENTATION_API_TREES_10_SPORTS.md) | Đặc tả chi tiết cấu trúc dữ liệu từng môn của nguồn UniScore |
+
+### Bảng tóm tắt Endpoint `/api/v1/*`
+- **Hệ thống & Môn:** `GET /api/v1/health` · `GET /api/v1/sports`
+- **Trận đấu & Live:** `GET /api/v1/matches` · `GET /api/v1/matches/{sport}/{eventId}` · `GET /api/v1/matches/{sport}/{eventId}/extended` · `GET /api/v1/live/{sport}`
+- **Quốc gia & Giải đấu:** `GET /api/v1/categories/{sport}` · `GET /api/v1/leagues/{sport}/top` · `GET /api/v1/leagues/{sport}/category/{categoryId}` · `GET /api/v1/competitions/{sport}/{id}`
+- **Xác thực (Bearer Token):** `POST /api/v1/auth/register` · `POST /api/v1/auth/login` · `GET /api/v1/auth/me` · `POST /api/v1/auth/logout`
+- **Yêu thích & Push Token:** `GET /api/v1/favorites` · `POST /api/v1/favorites` · `POST /api/v1/favorites/toggle` · `DELETE /api/v1/favorites/{id}` · `POST /api/v1/devices/register` · `DELETE /api/v1/devices/{token}`
 
 ---
 
