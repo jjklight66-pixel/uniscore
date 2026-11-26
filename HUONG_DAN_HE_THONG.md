@@ -1,7 +1,7 @@
 # HƯỚNG DẪN TOÀN DIỆN HỆ THỐNG THỂ THAO TRỰC TIẾP UNISCORE (10 MÔN THỂ THAO)
 
 **Dự án:** `sport` (Nền tảng Web Thể thao PHP Laravel + REST API v1 cho Mobile App + Pipeline Thu thập & Mission Control Python FastAPI)  
-**Phiên bản:** `2.2 Production (Floodlight UI + Mobile App API v1 + Dynamic Site Settings)`  
+**Phiên bản hiện tại:** `v1.1.1` ([VERSION](./VERSION) · [Lịch sử cập nhật CHANGELOG.md](./CHANGELOG.md) · [Chi tiết bản v1.1.1](./releases/v1.1.1.md))  
 **Phạm vi:** 10 môn thể thao (*Bóng đá, Bóng rổ, Quần vợt, Bóng bầu dục Mỹ, Bóng chày, Cầu lông, Bóng chuyền, Cricket, Khúc côn cầu trên băng, Bóng bàn*)
 
 ---
